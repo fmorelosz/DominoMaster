@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Domino Master 4.9.7</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --bg: #000; --card: #1c1c1e; --primary: #0a84ff; --success: #30d158; --danger: #ff453a; --text: #fff; --gray: #8e8e93; --warning: #ff9f0a; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
+        
+        #toast { position: fixed; top: 30%; left: 50%; transform: translateX(-50%) scale(0.5); background: var(--warning); color: #000; padding: 20px 30px; border-radius: 20px; font-weight: 800; z-index: 2000; transition: 0.4s; opacity: 0; pointer-events: none; text-align: center; box-shadow: 0 0 30px rgba(255,159,10,0.4); border: 2px solid #fff; }
+        #toast.show { transform: translateX(-50%) scale(1); opacity: 1; }
+
+        button { border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        
+        .tabs { display: flex; background: #2c2c2e; padding: 2px; border-radius: 10px; margin-bottom: 15px; overflow-x: auto; }
+        .btn-tab { flex: 1; min-width: 75px; padding: 10px 5px; background: transparent; color: var(--gray); font-size: 8px; border: none; text-transform: uppercase; white-space: nowrap; }
+        .btn-tab.active { background: #636366; color: #fff; border-radius: 8px; }
+
+        input, select { font-size: 16px; background: #2c2c2e; color: #fff; border: 1px solid #3d3d41; padding: 12px; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { color: var(--gray); font-size: 10px; text-transform: uppercase; padding: 8px; border-bottom: 1px solid #333; }
+        td { padding: 12px 8px; border-bottom: 1px solid #2c2c2e; text-align: center; }
+
+        .score-display { font-size: 3.2rem; font-weight: 800; color: var(--success); margin: 10px 0; }
+        .input-points { width: 85px !important; font-size: 22px !important; text-align: center; font-weight: bold; padding: 10px 5px !important; border: 2px solid #444; }
+        .btn-plus { width: 55px; height: 50px; font-size: 24px; background: var(--primary); color: #fff; }
+
+        /* Estilo Historial con Rayas Perdidas */
+        .history-card { background: #2c2c2e; border-radius: 10px; margin-bottom: 10px; padding: 12px; border: 1px solid #333; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .history-details { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #3d3d41; font-size: 11px; }
+        .game-log { padding: 10px 0; border-bottom: 1px dashed #444; }
+        .log-row { display: flex; justify-content: space-between; align-items: center; margin: 2px 0; }
+        .win-text { color: var(--success); font-weight: bold; font-size: 12px; }
+        .lose-text { color: var(--danger); font-weight: bold; font-size: 12px; }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .stat-box { background: #2c2c2e; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
+        .stat-val { display: block; font-size: 13px; font-weight: bold; color: var(--primary); overflow: hidden; text-overflow: ellipsis; }
+        .stat-lbl { font-size: 8px; color: var(--gray); text-transform: uppercase; }
+        .btn-setting { width: 100%; padding: 15px; margin-bottom: 10px; justify-content: flex-start; gap: 15px; background: #2c2c2e; color: #fff; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+
+<div id="toast">🔄 CAMBIO DE PAREJAS</div>
+
+<div class="container">
+    <div id="screen-setup">
+        <h1 style="text-align:center; font-size: 18px;">Domino Master 4.9.7</h1>
+        <div class="card">
+            <div class="tabs">
+                <button class="btn-tab active" onclick="showTab('play')">🎮 JUGAR</button>
+                <button class="btn-tab" onclick="showTab('rank')">🏆 RANK</button>
+                <button class="btn-tab" onclick="showTab('stats')">📊 STATS</button>
+                <button class="btn-tab" onclick="showTab('hist')">📜 HIST</button>
+                <button class="btn-tab" onclick="showTab('edit')">👥 JUGS</button>
+                <button class="btn-tab" onclick="showTab('sett')">⚙️</button>
+            </div>
+            
+            <div id="view-play" class="tab-content">
+                <h3 style="margin:0 0 15px 0; font-size:16px; color:var(--primary)">Configurar Partida</h3>
+                <select id="round-type" onchange="updateSelectors()" style="width: 100%; margin-bottom: 15px;">
+                    <option value="4">Ronda de 4</option>
+                    <option value="5">Ronda de 5</option>
+                    <option value="6" selected>Ronda de 6 (Triangular)</option>
+                </select>
+                <div id="selector-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"></div>
+                <button onclick="beginRonda()" style="background:var(--success); color:#fff; width:100%; padding:20px; border-radius:10px; margin-top:20px; font-size:18px">INICIAR PARTIDA</button>
+            </div>
+
+            <div id="view-rank" class="tab-content" style="display:none">
+                <table><thead><tr><th style="text-align:left">Jugador</th><th>Rayas</th><th>PJ</th></tr></thead><tbody id="rank-body"></tbody></table>
+            </div>
+
+            <div id="view-stats" class="tab-content" style="display:none">
+                <div class="stat-grid">
+                    <div class="stat-box"><span id="st-top-pair" class="stat-val">-</span><span class="stat-lbl">Pareja Élite</span></div>
+                    <div class="stat-box"><span id="st-zapateros" class="stat-val">-</span><span class="stat-lbl">Zapateros (3R)</span></div>
+                </div>
+                <canvas id="chartRayas" style="width:100%; height:220px; margin-bottom: 20px;"></canvas>
+                <h4 style="font-size:11px; color:var(--gray); margin-bottom:5px">Efectividad Victoria (%)</h4>
+                <div id="eff-list"></div>
+            </div>
+
+            <div id="view-hist" class="tab-content" style="display:none">
+                <div id="history-list"></div>
+            </div>
+
+            <div id="view-edit" class="tab-content" style="display:none">
+                <div id="player-manager"></div>
+                <button onclick="addPlayer()" style="background:var(--primary); color:#fff; width:100%; padding:15px; border-radius:10px; margin-top:10px">+ Nuevo Jugador</button>
+            </div>
+
+            <div id="view-sett" class="tab-content" style="display:none">
+                <button class="btn-setting" onclick="exportCSV()">📊 Exportar Ranking</button>
+                <button class="btn-setting" onclick="exportHistoryCSV()">📜 Exportar Historial Detallado</button>
+                <button class="btn-setting" onclick="resetStats()" style="margin-top:20px; color:var(--danger); border-color:var(--danger)">🗑️ Reiniciar Temporada</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-game" style="display:none">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span id="match-header" style="color:var(--gray); font-size: 11px;"></span>
+            <h2 id="match-title" style="margin:0; color:var(--primary); font-size: 18px;"></h2>
+        </div>
+        <div class="card" style="padding: 10px;">
+            <div style="display:flex; gap:8px">
+                <div id="box-a" style="flex:1; text-align:center; padding:10px; border-radius:12px; border:1px solid #333; background: #262629;">
+                    <div id="names-a" style="font-size:11px; min-height:35px; color:var(--gray)"></div>
+                    <div class="score-display" id="score-a">0</div>
+                    <div style="display:flex; gap:5px; justify-content:center; align-items:center">
+                        <input type="number" id="pts-a" class="input-points" pattern="[0-9]*" inputmode="numeric">
+                        <button onclick="sumPts('A')" class="btn-plus">+</button>
+                    </div>
+                </div>
+                <div id="box-b" style="flex:1; text-align:center; padding:10px; border-radius:12px; border:1px solid #333; background: #262629;">
+                    <div id="names-b" style="font-size:11px; min-height:35px; color:var(--gray)"></div>
+                    <div class="score-display" id="score-b">0</div>
+                    <div style="display:flex; gap:5px; justify-content:center; align-items:center">
+                        <input type="number" id="pts-b" class="input-points" pattern="[0-9]*" inputmode="numeric">
+                        <button onclick="sumPts('B')" class="btn-plus">+</button>
+                    </div>
+                </div>
+            </div>
+            <div id="resting-msg" style="color:var(--warning); font-size:11px; text-align:center; margin-top:15px"></div>
+            <button id="btn-next" onclick="stepForward()" style="width:100%; padding:20px; margin-top:20px; border-radius:10px; background:var(--success); color:#fff; display:none; font-size:18px">FINALIZAR JUEGO</button>
+            <button onclick="cancelAndSave()" style="background:none; color:var(--danger); width:100%; margin-top:25px; font-size:11px; padding:10px; border-top:1px solid #333">✖ Salir y Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const KEY_P = 'dm49_p'; const KEY_DB = 'dm49_db';
+    let players = JSON.parse(localStorage.getItem(KEY_P)) || ["J1", "J2", "J3", "J4", "J5", "J6"];
+    let db = JSON.parse(localStorage.getItem(KEY_DB)) || [];
+    let active = {}, curScA = 0, curScB = 0, myChart = null;
+
+    function showTab(t) {
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        document.getElementById('view-' + t).style.display = 'block';
+        document.querySelectorAll('.btn-tab').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes(t)));
+        if(t === 'stats') renderStats();
+    }
+
+    function render() {
+        localStorage.setItem(KEY_P, JSON.stringify(players));
+        localStorage.setItem(KEY_DB, JSON.stringify(db));
+        const s = {}; players.forEach(p => s[p] = {r:0, j:0});
+        db.forEach(r => r.jugadores.forEach(j => { if(s[j.n]) { s[j.n].r += j.r; s[j.n].j += j.j; } }));
+        document.getElementById('rank-body').innerHTML = Object.keys(s).sort((a,b)=>s[b].r - s[a].r).map(n => 
+            `<tr><td style="text-align:left"><b>${n}</b></td><td style="color:var(--success)">${s[n].r}</td><td>${s[n].j}</td></tr>`
+        ).join('');
+        
+        document.getElementById('history-list').innerHTML = db.slice().reverse().map((r, idx) => `
+            <div class="history-card">
+                <div class="history-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">
+                    <div style="font-size:12px"><b>Ronda ${r.tipo}</b> <span style="color:var(--gray)">${r.fecha}</span></div><span>▼</span>
+                </div>
+                <div class="history-details">
+                    ${r.log.map(l => `
+                        <div class="game-log">
+                            <div class="log-row"><span class="win-text">GANÓ (+${l.rayas}R):</span> <span style="color:var(--gray)">${l.win.join(" + ")}</span></div>
+                            <div class="log-row"><span class="lose-text">PERDIÓ (-${l.rayas}R):</span> <span style="color:var(--gray); opacity:0.7">${l.lose.join(" + ")}</span></div>
+                        </div>`).join('')}
+                </div>
+            </div>`).join('') || '<p style="text-align:center; color:var(--gray)">Sin partidas</p>';
+
+        document.getElementById('player-manager').innerHTML = players.map((p, i) => `<div style="display:flex; gap:8px; margin-bottom:8px"><input type="text" value="${p}" onchange="players[${i}]=this.value;render()"><button onclick="players.splice(${i},1);render()" style="background:var(--danger); color:#fff; width:40px">✕</button></div>`).join('');
+        updateSelectors();
+    }
+
+    function renderStats() {
+        const stats = {}; players.forEach(p => stats[p] = {r:0, j:0, wins:0, zaps:0});
+        const pairs = {};
+        db.forEach(r => {
+            r.log.forEach(l => {
+                l.win.forEach(n => { if(stats[n]) { stats[n].wins++; if(l.rayas===3) stats[n].zaps++; } });
+                const pairKey = l.win.slice().sort().join(" & ");
+                pairs[pairKey] = (pairs[pairKey] || 0) + 1;
+            });
+            r.jugadores.forEach(j => { if(stats[j.n]) { stats[j.n].r += j.r; stats[j.n].j += j.j; } });
+        });
+
+        const topPair = Object.entries(pairs).sort((a,b)=>b[1]-a[1])[0];
+        document.getElementById('st-top-pair').innerText = topPair ? `${topPair[0]} (${topPair[1]})` : '-';
+        document.getElementById('st-zapateros').innerText = Math.floor(Object.values(stats).reduce((a,c)=>a+c.zaps,0)/2);
+
+        const sorted = Object.entries(stats).sort((a,b) => b[1].r - a[1].r);
+        const ctx = document.getElementById('chartRayas').getContext('2d');
+        if(myChart) myChart.destroy();
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sorted.map(x => x[0]),
+                datasets: [{ label: 'Rayas', data: sorted.map(x => x[1].r), backgroundColor: '#0a84ff' }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+
+        document.getElementById('eff-list').innerHTML = sorted.map(([n, s]) => {
+            const eff = s.j > 0 ? ((s.wins / s.j) * 100).toFixed(0) : 0;
+            return `<div style="display:flex; justify-content:space-between; padding:8px 5px; border-bottom:1px solid #222; font-size:12px"><span>${n}</span><span style="color:var(--warning); font-weight:bold">${eff}%</span></div>`;
+        }).join('');
+    }
+
+    function updateSelectors() {
+        const n = parseInt(document.getElementById('round-type').value);
+        const area = document.getElementById('selector-grid'); area.innerHTML = '';
+        for(let i=0; i<n; i++) area.innerHTML += `<div><small style="font-size:9px; color:var(--gray)">Puesto ${i+1}</small><select id="sel-${i}" style="width:100%">${players.map((p,idx)=>`<option value="${p}" ${i===idx?'selected':''}>${p}</option>`).join('')}</select></div>`;
+    }
+
+    function beginRonda() {
+        const n = parseInt(document.getElementById('round-type').value);
+        const sel = [];
+        for(let i=0; i<n; i++) sel.push(document.getElementById('sel-'+i).value);
+        if(new Set(sel).size < n) return alert("Selecciona jugadores diferentes");
+        active = { tipo: n, fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), jugadores: sel.map(n => ({n, r:0, j:0})), log: [], tIdx: 0, subM: 1, mPlayed: 0 };
+        if(n === 6) {
+            active.triangulares = [{p1:[0,1], p2:[2,3], p3:[4,5]}, {p1:[0,2], p2:[1,4], p3:[3,5]}, {p1:[0,3], p2:[2,5], p3:[1,4]}, {p1:[0,4], p2:[1,5], p3:[2,3]}, {p1:[0,5], p2:[1,2], p3:[3,4]}].sort(() => Math.random() - 0.5);
+            active.totalM = 15;
+        } else { active.totalM = (n==4?3:5); }
+        document.getElementById('screen-setup').style.display = 'none';
+        document.getElementById('screen-game').style.display = 'block';
+        loadJuego();
+    }
+
+    function loadJuego() {
+        curScA = 0; curScB = 0;
+        document.getElementById('score-a').innerText = "0"; document.getElementById('score-b').innerText = "0";
+        document.getElementById('btn-next').style.display = 'none';
+        if(active.tipo === 6) {
+            const t = active.triangulares[active.tIdx];
+            if(active.subM === 1) { active.curA=t.p1; active.curB=t.p2; active.rest=t.p3; }
+            else if(active.subM === 2) { active.curA=active.lastWin; active.curB=t.p3; active.rest=active.lastLose; }
+            else { active.curA=active.lastLose; active.curB=t.p3; active.rest=active.lastWin; }
+            document.getElementById('match-header').innerText = `BLOQUE ${active.tIdx + 1}/5`;
+            document.getElementById('match-title').innerText = `JUEGO ${active.subM}/3`;
+        } else {
+            const r4 = [{a:[0,1], b:[2,3]}, {a:[0,2], b:[1,3]}, {a:[0,3], b:[1,2]}];
+            const r5 = [{a:[0,1], b:[2,3], r:[4]}, {a:[0,2], b:[3,4], r:[1]}, {a:[0,3], b:[4,1], r:[2]}, {a:[0,4], b:[1,2], r:[3]}, {a:[2,4], b:[1,3], r:[0]}];
+            const g = active.tipo==4 ? r4[active.mPlayed] : r5[active.mPlayed];
+            active.curA=g.a; active.curB=g.b; active.rest=g.r||[];
+            document.getElementById('match-header').innerText = `RONDA ${active.tipo}`;
+            document.getElementById('match-title').innerText = `JUEGO ${active.mPlayed+1}/${active.totalM}`;
+        }
+        document.getElementById('names-a').innerHTML = active.jugadores[active.curA[0]].n + "<br>" + active.jugadores[active.curA[1]].n;
+        document.getElementById('names-b').innerHTML = active.jugadores[active.curB[0]].n + "<br>" + active.jugadores[active.curB[1]].n;
+        document.getElementById('resting-msg').innerText = active.rest.length ? "Descansan: " + active.rest.map(i=>active.jugadores[i].n).join(" y ") : "";
+    }
+
+    function sumPts(t) {
+        const inp = document.getElementById('pts-'+t.toLowerCase());
+        const v = parseInt(inp.value) || 0;
+        if(t==='A') curScA += v; else curScB += v;
+        inp.value = '';
+        document.getElementById('score-a').innerText = curScA; document.getElementById('score-b').innerText = curScB;
+        if(curScA >= 100 || curScB >= 100) document.getElementById('btn-next').style.display = 'block';
+    }
+
+    function stepForward() {
+        const winA = curScA > curScB;
+        const ptsL = winA ? curScB : curScA;
+        const rayas = ptsL === 0 ? 3 : (ptsL < 51 ? 2 : 1);
+        active.log.push({ g: active.mPlayed+1, win: winA ? [active.jugadores[active.curA[0]].n, active.jugadores[active.curA[1]].n] : [active.jugadores[active.curB[0]].n, active.jugadores[active.curB[1]].n], lose: winA ? [active.jugadores[active.curB[0]].n, active.jugadores[active.curB[1]].n] : [active.jugadores[active.curA[0]].n, active.jugadores[active.curA[1]].n], rayas: rayas });
+        if(active.tipo === 6 && active.subM === 1) { active.lastWin = winA ? active.curA : active.curB; active.lastLose = winA ? active.curB : active.curA; }
+        active.jugadores.forEach((j, i) => { if(active.curA.includes(i)) { j.r += winA ? rayas : -rayas; j.j++; } if(active.curB.includes(i)) { j.r += winA ? -rayas : rayas; j.j++; } });
+        active.mPlayed++;
+        if(active.tipo === 6) {
+            if(active.subM < 3) { active.subM++; loadJuego(); }
+            else if(active.tIdx < 4) { active.tIdx++; active.subM=1; document.getElementById('toast').classList.add('show'); setTimeout(() => { document.getElementById('toast').classList.remove('show'); loadJuego(); }, 1800); }
+            else finish();
+        } else { if(active.mPlayed < active.totalM) loadJuego(); else finish(); }
+    }
+
+    function cancelAndSave() { if(confirm("¿Guardar y salir?")) finish(); }
+    function finish() { if(active.mPlayed > 0) db.push(active); active = {}; document.getElementById('screen-game').style.display = 'none'; document.getElementById('screen-setup').style.display = 'block'; render(); }
+    function addPlayer() { players.push("J" + (players.length+1)); render(); }
+    function resetStats() { if(confirm("¿Borrar todo?")) { db=[]; render(); }}
+    function exportCSV() { let c = "\ufeffJugador,Rayas,PJ\n"; const s = {}; players.forEach(p => s[p] = {r:0, j:0}); db.forEach(r => r.jugadores.forEach(j => { if(s[j.n]) { s[j.n].r += j.r; s[j.n].j += j.j; } })); Object.keys(s).sort((a,b)=>s[b].r - s[a].r).forEach(n => c += `${n},${s[n].r},${s[n].j}\n`); downloadCSV(c, 'Ranking.csv'); }
+    function exportHistoryCSV() { let c = "\ufeffFecha,Tipo,Juego,Ganadores,Rayas Ganadas,Perdedores,Rayas Perdidas\n"; db.forEach(r => r.log.forEach(l => { c += `${r.fecha},Ronda ${r.tipo},Juego ${l.g},"${l.win.join(' + ')}",+${l.rayas},"${l.lose.join(' + ')}",-${l.rayas}\n`; })); downloadCSV(c, 'Historial.csv'); }
+    function downloadCSV(c, f) { const b = new Blob([c], {type:'text/csv;charset=utf-8;'}); const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download=f; a.click(); }
+    render();
+</script>
+</body>
+</html>
