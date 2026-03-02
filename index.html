@@ -3,56 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Domino Master 4.9.7</title>
+    <title>Domino Master 6.9.2 - Export Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #000; --card: #1c1c1e; --primary: #0a84ff; --success: #30d158; --danger: #ff453a; --text: #fff; --gray: #8e8e93; --warning: #ff9f0a; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; font-size: 16px; }
         .container { max-width: 500px; margin: 0 auto; }
-        .card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-        
-        #toast { position: fixed; top: 30%; left: 50%; transform: translateX(-50%) scale(0.5); background: var(--warning); color: #000; padding: 20px 30px; border-radius: 20px; font-weight: 800; z-index: 2000; transition: 0.4s; opacity: 0; pointer-events: none; text-align: center; box-shadow: 0 0 30px rgba(255,159,10,0.4); border: 2px solid #fff; }
-        #toast.show { transform: translateX(-50%) scale(1); opacity: 1; }
-
-        button { border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        
-        .tabs { display: flex; background: #2c2c2e; padding: 2px; border-radius: 10px; margin-bottom: 15px; overflow-x: auto; }
-        .btn-tab { flex: 1; min-width: 75px; padding: 10px 5px; background: transparent; color: var(--gray); font-size: 8px; border: none; text-transform: uppercase; white-space: nowrap; }
-        .btn-tab.active { background: #636366; color: #fff; border-radius: 8px; }
-
-        input, select { font-size: 16px; background: #2c2c2e; color: #fff; border: 1px solid #3d3d41; padding: 12px; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; }
-        th { color: var(--gray); font-size: 10px; text-transform: uppercase; padding: 8px; border-bottom: 1px solid #333; }
-        td { padding: 12px 8px; border-bottom: 1px solid #2c2c2e; text-align: center; }
-
-        .score-display { font-size: 3.2rem; font-weight: 800; color: var(--success); margin: 10px 0; }
-        .input-points { width: 85px !important; font-size: 22px !important; text-align: center; font-weight: bold; padding: 10px 5px !important; border: 2px solid #444; }
-        .btn-plus { width: 55px; height: 50px; font-size: 24px; background: var(--primary); color: #fff; }
-
-        /* Estilo Historial con Rayas Perdidas */
-        .history-card { background: #2c2c2e; border-radius: 10px; margin-bottom: 10px; padding: 12px; border: 1px solid #333; }
-        .history-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .history-details { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #3d3d41; font-size: 11px; }
-        .game-log { padding: 10px 0; border-bottom: 1px dashed #444; }
-        .log-row { display: flex; justify-content: space-between; align-items: center; margin: 2px 0; }
-        .win-text { color: var(--success); font-weight: bold; font-size: 12px; }
-        .lose-text { color: var(--danger); font-weight: bold; font-size: 12px; }
-
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .stat-box { background: #2c2c2e; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
-        .stat-val { display: block; font-size: 13px; font-weight: bold; color: var(--primary); overflow: hidden; text-overflow: ellipsis; }
-        .stat-lbl { font-size: 8px; color: var(--gray); text-transform: uppercase; }
-        .btn-setting { width: 100%; padding: 15px; margin-bottom: 10px; justify-content: flex-start; gap: 15px; background: #2c2c2e; color: #fff; border: 1px solid #333; }
+        .card { background: var(--card); padding: 18px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #333; width: 100%; }
+        button { border: none; border-radius: 12px; cursor: pointer; font-weight: 700; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .tabs { display: flex; background: #2c2c2e; padding: 4px; border-radius: 12px; margin-bottom: 20px; overflow-x: auto; gap: 4px; }
+        .btn-tab { flex: 1; min-width: 70px; padding: 12px 5px; background: transparent; color: var(--gray); font-size: 10px; border: none; text-transform: uppercase; }
+        .btn-tab.active { background: #636366; color: #fff; border-radius: 10px; }
+        input, select { font-size: 16px; background: #2c2c2e; color: #fff; border: 1px solid #3d3d41; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 10px; appearance: none; }
+        .txt-pos { color: var(--success) !important; font-weight: bold; }
+        .txt-neg { color: var(--danger) !important; font-weight: bold; }
+        .history-card { background: #262629; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; overflow: hidden; }
+        .hist-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #2c2c2e; }
+        .hist-content { display: none; padding: 10px; background: #1c1c1e; }
+        .hist-content.active { display: block; }
+        .hist-item { padding: 10px; border-bottom: 1px solid #333; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+        .player-item { display: flex; align-items: center; gap: 12px; background: #262629; padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #333; width: 100%; }
+        .select-wrapper { position: relative; width: 100%; }
+        .player-select { padding-left: 45px !important; }
+        .select-avatar-preview { position: absolute; left: 10px; top: 50%; transform: translateY(-75%); width: 28px; height: 28px; border-radius: 50%; border: 1px solid #555; object-fit: cover; display: none; pointer-events: none; z-index: 10; }
+        .game-player-imgs { display: flex; justify-content: center; gap: 5px; margin-bottom: 5px; }
+        .game-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #555; object-fit: cover; }
+        .score-display { font-size: 3.2rem; font-weight: 900; color: var(--success); margin: 2px 0; }
+        .input-score-big { font-size: 32px !important; height: 60px; text-align: center; font-weight: bold; color: var(--primary) !important; border: 2px solid #444 !important; margin-bottom: 5px !important; }
+        .btn-add-big { flex: 2; height: 50px; font-size: 24px; background: var(--primary); color: #fff; border-radius: 10px; }
+        .btn-empate { flex: 1; height: 50px; font-size: 11px; background: var(--warning); color: #000; margin-left: 5px; border-radius: 10px; font-weight: 900; }
+        .btn-undo { width: 100%; height: 35px; font-size: 12px; background: #444; color: #fff; margin-top: 5px; border-radius: 8px; opacity: 0.8; }
+        .points-list { background: #161617; border-radius: 8px; border: 1px solid #333; font-size: 13px; height: 100px; overflow-y: auto; margin-top: 10px; }
+        .points-entry { padding: 4px; border-bottom: 1px solid #222; text-align: center; color: var(--gray); }
+        #editor-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: none; padding: 20px; overflow-y: auto; }
+        .photo-container { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; cursor: pointer; }
+        #edit-img-preview { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; }
+        .descanso-badge { background: #3a3a3c; color: #fff; padding: 8px 15px; border-radius: 12px; font-size: 12px; display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; border: 1px solid #444; width: 100%; }
+        .rest-player-item { display: flex; align-items: center; gap: 5px; background: #2c2c2e; padding: 4px 8px; border-radius: 8px; }
+        .rest-img { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #555; object-fit: cover; }
+        .export-section { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #333; }
+        .btn-export { background: #3a3a3c; color: #fff; padding: 12px; width: 100%; font-size: 14px; }
+        label { display: block; font-size: 11px; color: var(--gray); margin-bottom: 4px; margin-left: 5px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-<div id="toast">🔄 CAMBIO DE PAREJAS</div>
-
 <div class="container">
     <div id="screen-setup">
-        <h1 style="text-align:center; font-size: 18px;">Domino Master 4.9.7</h1>
+        <h1 style="text-align:center; font-size: 22px;">Domino Master 6.9.2</h1>
         <div class="card">
             <div class="tabs">
                 <button class="btn-tab active" onclick="showTab('play')">🎮 JUGAR</button>
@@ -64,230 +63,431 @@
             </div>
             
             <div id="view-play" class="tab-content">
-                <h3 style="margin:0 0 15px 0; font-size:16px; color:var(--primary)">Configurar Partida</h3>
-                <select id="round-type" onchange="updateSelectors()" style="width: 100%; margin-bottom: 15px;">
-                    <option value="4">Ronda de 4</option>
-                    <option value="5">Ronda de 5</option>
+                <select id="round-type" onchange="createSelectors()">
+                    <option value="4">Ronda de 4 (3 Juegos)</option>
+                    <option value="5">Ronda de 5 (5 Juegos)</option>
                     <option value="6" selected>Ronda de 6 (Triangular)</option>
                 </select>
                 <div id="selector-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"></div>
-                <button onclick="beginRonda()" style="background:var(--success); color:#fff; width:100%; padding:20px; border-radius:10px; margin-top:20px; font-size:18px">INICIAR PARTIDA</button>
+                <button onclick="beginRonda()" style="background:var(--success); color:#fff; width:100%; padding:20px; border-radius:12px; margin-top:20px; font-size:20px">INICIAR PARTIDA</button>
             </div>
 
-            <div id="view-rank" class="tab-content" style="display:none">
-                <table><thead><tr><th style="text-align:left">Jugador</th><th>Rayas</th><th>PJ</th></tr></thead><tbody id="rank-body"></tbody></table>
-            </div>
-
-            <div id="view-stats" class="tab-content" style="display:none">
-                <div class="stat-grid">
-                    <div class="stat-box"><span id="st-top-pair" class="stat-val">-</span><span class="stat-lbl">Pareja Élite</span></div>
-                    <div class="stat-box"><span id="st-zapateros" class="stat-val">-</span><span class="stat-lbl">Zapateros (3R)</span></div>
-                </div>
-                <canvas id="chartRayas" style="width:100%; height:220px; margin-bottom: 20px;"></canvas>
-                <h4 style="font-size:11px; color:var(--gray); margin-bottom:5px">Efectividad Victoria (%)</h4>
-                <div id="eff-list"></div>
-            </div>
-
-            <div id="view-hist" class="tab-content" style="display:none">
-                <div id="history-list"></div>
-            </div>
-
-            <div id="view-edit" class="tab-content" style="display:none">
-                <div id="player-manager"></div>
-                <button onclick="addPlayer()" style="background:var(--primary); color:#fff; width:100%; padding:15px; border-radius:10px; margin-top:10px">+ Nuevo Jugador</button>
-            </div>
-
+            <div id="view-rank" class="tab-content" style="display:none"><table style="width:100%"><tbody id="rank-body"></tbody></table></div>
+            <div id="view-stats" class="tab-content" style="display:none"><div class="card"><canvas id="chartRayas"></canvas></div><div id="stats-summary"></div></div>
+            <div id="view-hist" class="tab-content" style="display:none"><div id="history-list"></div></div>
+            <div id="view-edit" class="tab-content" style="display:none"><div id="player-list"></div><button onclick="openEditor()" style="background:var(--primary); color:#fff; width:100%; padding:15px; border-radius:10px; font-size:16px; margin-top:10px">+ Nuevo Jugador</button></div>
+            
             <div id="view-sett" class="tab-content" style="display:none">
-                <button class="btn-setting" onclick="exportCSV()">📊 Exportar Ranking</button>
-                <button class="btn-setting" onclick="exportHistoryCSV()">📜 Exportar Historial Detallado</button>
-                <button class="btn-setting" onclick="resetStats()" style="margin-top:20px; color:var(--danger); border-color:var(--danger)">🗑️ Reiniciar Temporada</button>
+                <div class="export-section">
+                    <p style="font-size: 12px; color: var(--gray); text-align: center; margin-bottom: 5px;">EXPORTAR DATOS (.CSV)</p>
+                    <button class="btn-export" onclick="exportRankingCSV()">📥 Exportar Ranking</button>
+                    <button class="btn-export" onclick="exportHistoryCSV()">📥 Exportar Histórico</button>
+                </div>
+                <div style="margin-top: 30px;">
+                    <button onclick="resetData()" style="width:100%; padding:15px; background:none; color:var(--danger); border:1px solid var(--danger); border-radius:10px;">🗑️ BORRAR TODO</button>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="screen-game" style="display:none">
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span id="match-header" style="color:var(--gray); font-size: 11px;"></span>
-            <h2 id="match-title" style="margin:0; color:var(--primary); font-size: 18px;"></h2>
-        </div>
-        <div class="card" style="padding: 10px;">
-            <div style="display:flex; gap:8px">
-                <div id="box-a" style="flex:1; text-align:center; padding:10px; border-radius:12px; border:1px solid #333; background: #262629;">
-                    <div id="names-a" style="font-size:11px; min-height:35px; color:var(--gray)"></div>
+        <div class="card" style="padding:10px; text-align: center;">
+            <div id="game-header" style="font-size:13px; color:var(--warning); font-weight:bold; margin-bottom:5px;"></div>
+            <div id="descanso-info"></div>
+            <div style="display:flex; gap:8px;">
+                <div style="flex:1; background:#262629; padding:10px; border-radius:12px; border:1px solid #444">
+                    <div id="game-imgs-a" class="game-player-imgs"></div>
+                    <div id="names-a" style="font-size:10px; font-weight:bold; height:25px;"></div>
                     <div class="score-display" id="score-a">0</div>
-                    <div style="display:flex; gap:5px; justify-content:center; align-items:center">
-                        <input type="number" id="pts-a" class="input-points" pattern="[0-9]*" inputmode="numeric">
-                        <button onclick="sumPts('A')" class="btn-plus">+</button>
-                    </div>
+                    <input type="number" id="pts-a" class="input-score-big" placeholder="0" inputmode="numeric">
+                    <div style="display:flex"><button onclick="sumPts('A')" class="btn-add-big">+</button><button onclick="sumEmpate('A')" class="btn-empate">EMPATE</button></div>
+                    <div id="list-a" class="points-list"></div>
+                    <button onclick="undo('A')" class="btn-undo">DESHACER</button>
                 </div>
-                <div id="box-b" style="flex:1; text-align:center; padding:10px; border-radius:12px; border:1px solid #333; background: #262629;">
-                    <div id="names-b" style="font-size:11px; min-height:35px; color:var(--gray)"></div>
+                <div style="flex:1; background:#262629; padding:10px; border-radius:12px; border:1px solid #444">
+                    <div id="game-imgs-b" class="game-player-imgs"></div>
+                    <div id="names-b" style="font-size:10px; font-weight:bold; height:25px;"></div>
                     <div class="score-display" id="score-b">0</div>
-                    <div style="display:flex; gap:5px; justify-content:center; align-items:center">
-                        <input type="number" id="pts-b" class="input-points" pattern="[0-9]*" inputmode="numeric">
-                        <button onclick="sumPts('B')" class="btn-plus">+</button>
-                    </div>
+                    <input type="number" id="pts-b" class="input-score-big" placeholder="0" inputmode="numeric">
+                    <div style="display:flex"><button onclick="sumPts('B')" class="btn-add-big">+</button><button onclick="sumEmpate('B')" class="btn-empate">EMPATE</button></div>
+                    <div id="list-b" class="points-list"></div>
+                    <button onclick="undo('B')" class="btn-undo">DESHACER</button>
                 </div>
             </div>
-            <div id="resting-msg" style="color:var(--warning); font-size:11px; text-align:center; margin-top:15px"></div>
-            <button id="btn-next" onclick="stepForward()" style="width:100%; padding:20px; margin-top:20px; border-radius:10px; background:var(--success); color:#fff; display:none; font-size:18px">FINALIZAR JUEGO</button>
-            <button onclick="cancelAndSave()" style="background:none; color:var(--danger); width:100%; margin-top:25px; font-size:11px; padding:10px; border-top:1px solid #333">✖ Salir y Guardar</button>
+            <button id="btn-next" onclick="stepForward()" style="width:100%; padding:20px; margin-top:15px; background:var(--success); color:#fff; display:none; border-radius:12px; font-size:18px">REGISTRAR JUEGO</button>
+            <button onclick="abandonarRonda()" style="width:100%; margin-top:15px; color:var(--danger); background:none; font-size:12px">ABANDONAR Y GUARDAR</button>
+        </div>
+    </div>
+</div>
+
+<div id="editor-overlay">
+    <div class="container">
+        <div class="card" style="margin-top: 20px;">
+            <h3 style="text-align:center">Perfil Jugador</h3>
+            <div class="photo-container" onclick="document.getElementById('file-input').click()">
+                <img id="edit-img-preview" src="">
+                <div style="position:absolute; bottom:0; right:0; background:var(--primary); padding:5px; border-radius:50%; color:white; font-size:12px">📷</div>
+            </div>
+            <input type="file" id="file-input" style="display:none" accept="image/*">
+            <label>Nombre</label><input type="text" id="edit-name">
+            <label>Email</label><input type="email" id="edit-email" placeholder="correo@ejemplo.com">
+            <label>WhatsApp / Teléfono</label><input type="tel" id="edit-phone" placeholder="+00 000 000 000">
+            <label>Fecha de Nacimiento</label><input type="date" id="edit-bday">
+            <div style="display:flex; gap:10px; margin-top:15px">
+                <button onclick="closeEditor()" style="flex:1; background:#444; color:#fff; padding:15px">Cancelar</button>
+                <button onclick="savePlayer()" style="flex:2; background:var(--success); color:#fff; padding:15px">Guardar</button>
+            </div>
+            <button id="btn-delete-player" onclick="deletePlayer()" style="background:none; color:var(--danger); border:1px solid var(--danger); padding:12px; margin-top:10px; display:none; width:100%">Eliminar Jugador</button>
         </div>
     </div>
 </div>
 
 <script>
-    const KEY_P = 'dm49_p'; const KEY_DB = 'dm49_db';
-    let players = JSON.parse(localStorage.getItem(KEY_P)) || ["J1", "J2", "J3", "J4", "J5", "J6"];
-    let db = JSON.parse(localStorage.getItem(KEY_DB)) || [];
-    let active = {}, curScA = 0, curScB = 0, myChart = null;
+    const K_P = 'dm661_players', K_DB = 'dm661_db';
+    let players = JSON.parse(localStorage.getItem(K_P)) || [];
+    let db = JSON.parse(localStorage.getItem(K_DB)) || [];
+    let active = {}, scoresA = [], scoresB = [], editingId = null, myChart = null;
+
+    if(!players.length) { 
+        for(let i=1; i<=6; i++) players.push({id: i, name: `Jugador ${i}`, img: `https://api.dicebear.com/7.x/avataaars/svg?seed=P${i}`, email: "", phone: "", bday: ""}); 
+    }
+
+    function downloadCSV(csv, filename) {
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
+    function exportRankingCSV() {
+        const s = {}; players.forEach(p => s[p.name] = {r:0});
+        db.forEach(r => r.jugadores.forEach(j => { if(s[j.n]) s[j.n].r += j.r; }));
+        let csv = "Jugador,Rayas Totales\n";
+        Object.keys(s).sort((a,b)=>s[b].r - s[a].r).forEach(n => { csv += `${n},${s[n].r}\n`; });
+        downloadCSV(csv, `ranking_domino_${new Date().toLocaleDateString()}.csv`);
+    }
+
+    function exportHistoryCSV() {
+        // Se agregan las columnas de Rayas a Favor y Rayas en Contra
+        let csv = "Fecha,Tipo Ronda,Juego,Ganadores,Perdedores,Rayas a Favor,Rayas en Contra,Pts Ganador,Pts Perdedor\n";
+        db.forEach(r => {
+            r.log.forEach(l => {
+                // Rayas a favor (positivas) y en contra (negativas)
+                csv += `"${r.fecha}",Ronda ${r.tipo},${l.j},"${l.gan.join(' & ')}","${l.per.join(' & ')}",${l.r},-${l.r},${l.ptsW},${l.ptsL}\n`;
+            });
+        });
+        downloadCSV(csv, `historial_domino_${new Date().toLocaleDateString()}.csv`);
+    }
 
     function showTab(t) {
         document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
         document.getElementById('view-' + t).style.display = 'block';
         document.querySelectorAll('.btn-tab').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes(t)));
         if(t === 'stats') renderStats();
+        render();
     }
 
-    function render() {
-        localStorage.setItem(KEY_P, JSON.stringify(players));
-        localStorage.setItem(KEY_DB, JSON.stringify(db));
-        const s = {}; players.forEach(p => s[p] = {r:0, j:0});
-        db.forEach(r => r.jugadores.forEach(j => { if(s[j.n]) { s[j.n].r += j.r; s[j.n].j += j.j; } }));
-        document.getElementById('rank-body').innerHTML = Object.keys(s).sort((a,b)=>s[b].r - s[a].r).map(n => 
-            `<tr><td style="text-align:left"><b>${n}</b></td><td style="color:var(--success)">${s[n].r}</td><td>${s[n].j}</td></tr>`
-        ).join('');
-        
-        document.getElementById('history-list').innerHTML = db.slice().reverse().map((r, idx) => `
-            <div class="history-card">
-                <div class="history-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">
-                    <div style="font-size:12px"><b>Ronda ${r.tipo}</b> <span style="color:var(--gray)">${r.fecha}</span></div><span>▼</span>
-                </div>
-                <div class="history-details">
-                    ${r.log.map(l => `
-                        <div class="game-log">
-                            <div class="log-row"><span class="win-text">GANÓ (+${l.rayas}R):</span> <span style="color:var(--gray)">${l.win.join(" + ")}</span></div>
-                            <div class="log-row"><span class="lose-text">PERDIÓ (-${l.rayas}R):</span> <span style="color:var(--gray); opacity:0.7">${l.lose.join(" + ")}</span></div>
-                        </div>`).join('')}
-                </div>
-            </div>`).join('') || '<p style="text-align:center; color:var(--gray)">Sin partidas</p>';
-
-        document.getElementById('player-manager').innerHTML = players.map((p, i) => `<div style="display:flex; gap:8px; margin-bottom:8px"><input type="text" value="${p}" onchange="players[${i}]=this.value;render()"><button onclick="players.splice(${i},1);render()" style="background:var(--danger); color:#fff; width:40px">✕</button></div>`).join('');
-        updateSelectors();
-    }
-
-    function renderStats() {
-        const stats = {}; players.forEach(p => stats[p] = {r:0, j:0, wins:0, zaps:0});
-        const pairs = {};
-        db.forEach(r => {
-            r.log.forEach(l => {
-                l.win.forEach(n => { if(stats[n]) { stats[n].wins++; if(l.rayas===3) stats[n].zaps++; } });
-                const pairKey = l.win.slice().sort().join(" & ");
-                pairs[pairKey] = (pairs[pairKey] || 0) + 1;
-            });
-            r.jugadores.forEach(j => { if(stats[j.n]) { stats[j.n].r += j.r; stats[j.n].j += j.j; } });
-        });
-
-        const topPair = Object.entries(pairs).sort((a,b)=>b[1]-a[1])[0];
-        document.getElementById('st-top-pair').innerText = topPair ? `${topPair[0]} (${topPair[1]})` : '-';
-        document.getElementById('st-zapateros').innerText = Math.floor(Object.values(stats).reduce((a,c)=>a+c.zaps,0)/2);
-
-        const sorted = Object.entries(stats).sort((a,b) => b[1].r - a[1].r);
-        const ctx = document.getElementById('chartRayas').getContext('2d');
-        if(myChart) myChart.destroy();
-        myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: sorted.map(x => x[0]),
-                datasets: [{ label: 'Rayas', data: sorted.map(x => x[1].r), backgroundColor: '#0a84ff' }]
-            },
-            options: { responsive: true, plugins: { legend: { display: false } } }
-        });
-
-        document.getElementById('eff-list').innerHTML = sorted.map(([n, s]) => {
-            const eff = s.j > 0 ? ((s.wins / s.j) * 100).toFixed(0) : 0;
-            return `<div style="display:flex; justify-content:space-between; padding:8px 5px; border-bottom:1px solid #222; font-size:12px"><span>${n}</span><span style="color:var(--warning); font-weight:bold">${eff}%</span></div>`;
-        }).join('');
-    }
-
-    function updateSelectors() {
+    function createSelectors() {
         const n = parseInt(document.getElementById('round-type').value);
         const area = document.getElementById('selector-grid'); area.innerHTML = '';
-        for(let i=0; i<n; i++) area.innerHTML += `<div><small style="font-size:9px; color:var(--gray)">Puesto ${i+1}</small><select id="sel-${i}" style="width:100%">${players.map((p,idx)=>`<option value="${p}" ${i===idx?'selected':''}>${p}</option>`).join('')}</select></div>`;
+        for(let i=0; i<n; i++) area.innerHTML += `<div class="select-wrapper"><img id="sel-avatar-${i}" class="select-avatar-preview" src=""><select id="sel-${i}" class="player-select" onchange="updateOptions()"></select></div>`;
+        updateOptions();
+    }
+
+    function updateOptions() {
+        const n = parseInt(document.getElementById('round-type').value);
+        const selNames = Array.from({length:n}, (_,i) => document.getElementById('sel-'+i).value);
+        for(let i=0; i<n; i++) {
+            const sel = document.getElementById('sel-'+i), av = document.getElementById('sel-avatar-'+i), curr = selNames[i];
+            const pFound = players.find(x => x.name === curr);
+            if(pFound) { av.src = pFound.img; av.style.display = "block"; } else av.style.display = "none";
+            let h = `<option value="">-- J${i+1} --</option>`;
+            players.forEach(p => { if(!selNames.some((v, idx) => v === p.name && idx !== i)) h += `<option value="${p.name}" ${curr === p.name ? 'selected' : ''}>${p.name}</option>`; });
+            sel.innerHTML = h;
+        }
+    }
+
+    // FUNCION PARA GENERAR PAREJAS ALEATORIAS SIN REPETIR
+    function getUniquePairs() {
+        let intentos = 0;
+        while(intentos < 1000) {
+            let p = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
+            let p1 = [p[0], p[1]].sort((a,b)=>a-b);
+            let p2 = [p[2], p[3]].sort((a,b)=>a-b);
+            let p3 = [p[4], p[5]].sort((a,b)=>a-b);
+
+            let c1 = p1.join('-');
+            let c2 = p2.join('-');
+            let c3 = p3.join('-');
+
+            if(!active.usedPairs.includes(c1) && !active.usedPairs.includes(c2) && !active.usedPairs.includes(c3)) {
+                active.usedPairs.push(c1, c2, c3);
+                return { p1, p2, p3 };
+            }
+            intentos++;
+        }
+        return null; // Si se acaban todas las combinaciones posibles
     }
 
     function beginRonda() {
         const n = parseInt(document.getElementById('round-type').value);
-        const sel = [];
-        for(let i=0; i<n; i++) sel.push(document.getElementById('sel-'+i).value);
-        if(new Set(sel).size < n) return alert("Selecciona jugadores diferentes");
-        active = { tipo: n, fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), jugadores: sel.map(n => ({n, r:0, j:0})), log: [], tIdx: 0, subM: 1, mPlayed: 0 };
-        if(n === 6) {
-            active.triangulares = [{p1:[0,1], p2:[2,3], p3:[4,5]}, {p1:[0,2], p2:[1,4], p3:[3,5]}, {p1:[0,3], p2:[2,5], p3:[1,4]}, {p1:[0,4], p2:[1,5], p3:[2,3]}, {p1:[0,5], p2:[1,2], p3:[3,4]}].sort(() => Math.random() - 0.5);
-            active.totalM = 15;
-        } else { active.totalM = (n==4?3:5); }
-        document.getElementById('screen-setup').style.display = 'none';
-        document.getElementById('screen-game').style.display = 'block';
-        loadJuego();
+        const names = Array.from({length:n}, (_,i) => document.getElementById('sel-'+i).value);
+        if(names.includes("")) return alert("Selecciona todos los jugadores");
+        active = { tipo: n, fecha: new Date().toLocaleString(), jugadores: names.map(n => ({n, r:0, j:0})), juegoNum: 1, log: [] };
+        
+        // Inicialización estricta para la Ronda de 6
+        if(n == 6) {
+            active.numRonda = 1;
+            active.usedPairs = [];
+            // Parejas fijas 1 y 2, 3 y 4, 5 y 6
+            active.p1 = [0, 1];
+            active.p2 = [2, 3];
+            active.p3 = [4, 5];
+            active.usedPairs.push("0-1", "2-3", "4-5");
+        }
+
+        prepareStarter();
     }
 
-    function loadJuego() {
-        curScA = 0; curScB = 0;
-        document.getElementById('score-a').innerText = "0"; document.getElementById('score-b').innerText = "0";
-        document.getElementById('btn-next').style.display = 'none';
-        if(active.tipo === 6) {
-            const t = active.triangulares[active.tIdx];
-            if(active.subM === 1) { active.curA=t.p1; active.curB=t.p2; active.rest=t.p3; }
-            else if(active.subM === 2) { active.curA=active.lastWin; active.curB=t.p3; active.rest=active.lastLose; }
-            else { active.curA=active.lastLose; active.curB=t.p3; active.rest=active.lastWin; }
-            document.getElementById('match-header').innerText = `BLOQUE ${active.tIdx + 1}/5`;
-            document.getElementById('match-title').innerText = `JUEGO ${active.subM}/3`;
-        } else {
-            const r4 = [{a:[0,1], b:[2,3]}, {a:[0,2], b:[1,3]}, {a:[0,3], b:[1,2]}];
-            const r5 = [{a:[0,1], b:[2,3], r:[4]}, {a:[0,2], b:[3,4], r:[1]}, {a:[0,3], b:[4,1], r:[2]}, {a:[0,4], b:[1,2], r:[3]}, {a:[2,4], b:[1,3], r:[0]}];
-            const g = active.tipo==4 ? r4[active.mPlayed] : r5[active.mPlayed];
-            active.curA=g.a; active.curB=g.b; active.rest=g.r||[];
-            document.getElementById('match-header').innerText = `RONDA ${active.tipo}`;
-            document.getElementById('match-title').innerText = `JUEGO ${active.mPlayed+1}/${active.totalM}`;
+    function prepareStarter() {
+        let pA, pB, rest = [];
+        const n = active.tipo, j = active.juegoNum;
+        
+        if(n == 4) { 
+            const c = [[0,1,2,3],[0,2,1,3],[0,3,1,2]][j-1]; pA=[c[0],c[1]]; pB=[c[2],c[3]]; 
         }
-        document.getElementById('names-a').innerHTML = active.jugadores[active.curA[0]].n + "<br>" + active.jugadores[active.curA[1]].n;
-        document.getElementById('names-b').innerHTML = active.jugadores[active.curB[0]].n + "<br>" + active.jugadores[active.curB[1]].n;
-        document.getElementById('resting-msg').innerText = active.rest.length ? "Descansan: " + active.rest.map(i=>active.jugadores[i].n).join(" y ") : "";
+        else if(n == 5) { 
+            const c = [[0,1,2,3,4],[0,2,3,4,1],[0,3,4,1,2],[0,4,1,2,3],[2,4,1,3,0]][j-1]; pA=[c[0],c[1]]; pB=[c[2],c[3]]; rest=[c[4]]; 
+        }
+        else { 
+            // LÓGICA DE ENFRENTAMIENTOS RONDA DE 6
+            if(j == 1) { 
+                pA = active.p1; pB = active.p2; rest = active.p3; 
+            }
+            else if(j == 2) { 
+                pA = active.lastWinner; pB = active.p3; rest = active.lastLoser; 
+            }
+            else { 
+                pA = active.lastLoser; pB = active.p3; rest = active.lastWinner; 
+            } 
+        }
+        
+        active.currentMatch = { a: pA, b: pB, resting: rest };
+        const dDiv = document.getElementById('descanso-info');
+        if(rest.length > 0) {
+            let html = `<div class="descanso-badge"><span>Descansa:</span>`;
+            rest.forEach(i => {
+                const name = active.jugadores[i].n;
+                const p = players.find(x => x.name === name);
+                html += `<div class="rest-player-item"><img src="${p.img}" class="rest-img"> <span>${name}</span></div>`;
+            });
+            dDiv.innerHTML = html + `</div>`;
+        } else dDiv.innerHTML = "";
+        
+        loadMatch();
+        document.getElementById('screen-setup').style.display = 'none';
+        document.getElementById('screen-game').style.display = 'block';
+    }
+
+    function loadMatch() {
+        scoresA = []; scoresB = []; recalc('A'); recalc('B');
+        document.getElementById('btn-next').style.display = 'none';
+        const draw = (inds) => inds.map(i => {
+            const p = players.find(x => x.name === active.jugadores[i].n);
+            return `<img src="${p.img}" class="game-avatar">`;
+        }).join('');
+        document.getElementById('game-imgs-a').innerHTML = draw(active.currentMatch.a);
+        document.getElementById('game-imgs-b').innerHTML = draw(active.currentMatch.b);
+        document.getElementById('names-a').innerText = active.currentMatch.a.map(i=>active.jugadores[i].n).join(" & ");
+        document.getElementById('names-b').innerText = active.currentMatch.b.map(i=>active.jugadores[i].n).join(" & ");
+        
+        if(active.tipo == 6) {
+            document.getElementById('game-header').innerText = `Ronda ${active.numRonda} - Juego ${active.juegoNum}`;
+        } else {
+            document.getElementById('game-header').innerText = `Juego ${active.juegoNum} (Ronda de ${active.tipo})`;
+        }
     }
 
     function sumPts(t) {
         const inp = document.getElementById('pts-'+t.toLowerCase());
         const v = parseInt(inp.value) || 0;
-        if(t==='A') curScA += v; else curScB += v;
-        inp.value = '';
-        document.getElementById('score-a').innerText = curScA; document.getElementById('score-b').innerText = curScB;
-        if(curScA >= 100 || curScB >= 100) document.getElementById('btn-next').style.display = 'block';
+        if(t==='A') scoresA.push(v); else scoresB.push(v);
+        recalc(t); inp.value = "";
+    }
+    function sumEmpate(t) { if(t==='A') scoresA.push(0); else scoresB.push(0); recalc(t); }
+    function undo(t) { if(t==='A') scoresA.pop(); else scoresB.pop(); recalc(t); }
+
+    function recalc(t) {
+        const list = (t==='A' ? scoresA : scoresB);
+        const total = list.reduce((a,b)=>a+b, 0);
+        document.getElementById('score-'+t.toLowerCase()).innerText = total;
+        let running = 0;
+        document.getElementById('list-'+t.toLowerCase()).innerHTML = list.map(v => {
+            running += v; return `<div class="points-entry">+${v} (${running})</div>`;
+        }).reverse().join('');
+        const totalA = scoresA.reduce((a,b)=>a+b,0);
+        const totalB = scoresB.reduce((a,b)=>a+b,0);
+        document.getElementById('btn-next').style.display = (totalA >= 100 || totalB >= 100) ? 'block' : 'none';
     }
 
     function stepForward() {
-        const winA = curScA > curScB;
-        const ptsL = winA ? curScB : curScA;
-        const rayas = ptsL === 0 ? 3 : (ptsL < 51 ? 2 : 1);
-        active.log.push({ g: active.mPlayed+1, win: winA ? [active.jugadores[active.curA[0]].n, active.jugadores[active.curA[1]].n] : [active.jugadores[active.curB[0]].n, active.jugadores[active.curB[1]].n], lose: winA ? [active.jugadores[active.curB[0]].n, active.jugadores[active.curB[1]].n] : [active.jugadores[active.curA[0]].n, active.jugadores[active.curA[1]].n], rayas: rayas });
-        if(active.tipo === 6 && active.subM === 1) { active.lastWin = winA ? active.curA : active.curB; active.lastLose = winA ? active.curB : active.curA; }
-        active.jugadores.forEach((j, i) => { if(active.curA.includes(i)) { j.r += winA ? rayas : -rayas; j.j++; } if(active.curB.includes(i)) { j.r += winA ? -rayas : rayas; j.j++; } });
-        active.mPlayed++;
-        if(active.tipo === 6) {
-            if(active.subM < 3) { active.subM++; loadJuego(); }
-            else if(active.tIdx < 4) { active.tIdx++; active.subM=1; document.getElementById('toast').classList.add('show'); setTimeout(() => { document.getElementById('toast').classList.remove('show'); loadJuego(); }, 1800); }
-            else finish();
-        } else { if(active.mPlayed < active.totalM) loadJuego(); else finish(); }
+        const totalA = scoresA.reduce((a,b)=>a+b,0);
+        const totalB = scoresB.reduce((a,b)=>a+b,0);
+        const winA = totalA > totalB;
+        const ptsW = winA ? totalA : totalB;
+        const ptsL = winA ? totalB : totalA;
+        const r = ptsL <= 0 ? 3 : (ptsL < 51 ? 2 : 1);
+        const wIdx = winA ? active.currentMatch.a : active.currentMatch.b;
+        const lIdx = winA ? active.currentMatch.b : active.currentMatch.a;
+        
+        wIdx.forEach(i => { active.jugadores[i].r += r; active.jugadores[i].j++; });
+        lIdx.forEach(i => { active.jugadores[i].r -= r; active.jugadores[i].j++; });
+        
+        active.log.push({ j: active.juegoNum, gan: wIdx.map(i=>active.jugadores[i].n), per: lIdx.map(i=>active.jugadores[i].n), r, ptsW, ptsL, numRonda: active.numRonda });
+        
+        // Guardar ganador y perdedor del juego 1 para rotar a la Pareja 3
+        if(active.juegoNum === 1) {
+            active.lastWinner = wIdx;
+            active.lastLoser = lIdx;
+        }
+
+        active.juegoNum++;
+        
+        let limitJuegos = (active.tipo == 5 ? 5 : 3);
+
+        if(active.juegoNum <= limitJuegos) {
+            prepareStarter();
+        } else {
+            // Al terminar el triangular
+            if(active.tipo == 6) {
+                if(confirm("¿Desea continuar con otra ronda cambiando de parejas aleatoriamente sin repetir?")) {
+                    let nuevas = getUniquePairs();
+                    if(nuevas) {
+                        active.p1 = nuevas.p1;
+                        active.p2 = nuevas.p2;
+                        active.p3 = nuevas.p3;
+                        active.numRonda++;
+                        active.juegoNum = 1;
+                        prepareStarter();
+                    } else {
+                        alert("Se han jugado todas las combinaciones de parejas posibles. Fin de la partida.");
+                        finishRonda(true);
+                    }
+                } else {
+                    finishRonda(true);
+                }
+            } else {
+                finishRonda(true);
+            }
+        }
     }
 
-    function cancelAndSave() { if(confirm("¿Guardar y salir?")) finish(); }
-    function finish() { if(active.mPlayed > 0) db.push(active); active = {}; document.getElementById('screen-game').style.display = 'none'; document.getElementById('screen-setup').style.display = 'block'; render(); }
-    function addPlayer() { players.push("J" + (players.length+1)); render(); }
-    function resetStats() { if(confirm("¿Borrar todo?")) { db=[]; render(); }}
-    function exportCSV() { let c = "\ufeffJugador,Rayas,PJ\n"; const s = {}; players.forEach(p => s[p] = {r:0, j:0}); db.forEach(r => r.jugadores.forEach(j => { if(s[j.n]) { s[j.n].r += j.r; s[j.n].j += j.j; } })); Object.keys(s).sort((a,b)=>s[b].r - s[a].r).forEach(n => c += `${n},${s[n].r},${s[n].j}\n`); downloadCSV(c, 'Ranking.csv'); }
-    function exportHistoryCSV() { let c = "\ufeffFecha,Tipo,Juego,Ganadores,Rayas Ganadas,Perdedores,Rayas Perdidas\n"; db.forEach(r => r.log.forEach(l => { c += `${r.fecha},Ronda ${r.tipo},Juego ${l.g},"${l.win.join(' + ')}",+${l.rayas},"${l.lose.join(' + ')}",-${l.rayas}\n`; })); downloadCSV(c, 'Historial.csv'); }
-    function downloadCSV(c, f) { const b = new Blob([c], {type:'text/csv;charset=utf-8;'}); const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download=f; a.click(); }
-    render();
+    function abandonarRonda() {
+        if(confirm("¿Seguro que deseas abandonar la partida? Se guardarán los juegos que ya hayas completado en el historial.")) {
+            // Solo guarda si se jugó al menos un partido en esta sesión
+            finishRonda(active.log && active.log.length > 0);
+        }
+    }
+
+    function finishRonda(save) {
+        if(save) db.push(active);
+        document.getElementById('screen-game').style.display = 'none';
+        document.getElementById('screen-setup').style.display = 'block';
+        render();
+    }
+
+    function render() {
+        localStorage.setItem(K_P, JSON.stringify(players));
+        localStorage.setItem(K_DB, JSON.stringify(db));
+        const s = {}; players.forEach(p => s[p.name] = {r:0, img:p.img});
+        db.forEach(r => r.jugadores.forEach(j => { if(s[j.n]) s[j.n].r += j.r; }));
+        
+        document.getElementById('rank-body').innerHTML = Object.keys(s).sort((a,b)=>s[b].r - s[a].r).map(n => 
+            `<tr style="border-bottom:1px solid #333"><td style="padding:10px"><img src="${s[n].img}" style="width:35px;height:35px;border-radius:50%"></td><td>${n}</td><td style="text-align:right" class="${s[n].r>=0?'txt-pos':'txt-neg'}">${s[n].r}R</td></tr>`
+        ).join('');
+        
+        document.getElementById('history-list').innerHTML = db.slice().reverse().map(r => `
+            <div class="history-card">
+                <div class="hist-header" onclick="this.nextElementSibling.classList.toggle('active')">
+                    <span><b>Ronda ${r.tipo}</b> <small>${r.fecha}</small></span><span>▼</span>
+                </div>
+                <div class="hist-content">
+                    ${r.log.map(l => `
+                        <div class="hist-item">
+                            ${l.numRonda ? `<div style="font-size:11px; color:var(--primary); margin-bottom:2px">Ronda ${l.numRonda} - Juego ${l.j}</div>` : ''}
+                            <div style="display:flex; justify-content:space-between"><span><b>G:</b> ${l.gan.join(" & ")}</span><span class="txt-pos">+${l.r}R (${l.ptsW})</span></div>
+                            <div style="display:flex; justify-content:space-between"><span style="color:var(--gray)"><b>P:</b> ${l.per.join(" & ")}</span><span class="txt-neg">-${l.r}R (${l.ptsL})</span></div>
+                        </div>`).join('')}
+                </div>
+            </div>`).join('');
+            
+        document.getElementById('player-list').innerHTML = players.map(p => `
+            <div class="player-item" onclick="openEditor(${p.id})">
+                <img src="${p.img}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"><b>${p.name}</b>
+            </div>`).join('');
+    }
+
+    function renderStats() {
+        const s = {}; players.forEach(p => s[p.name] = {r:0, j:0});
+        db.forEach(r => r.jugadores.forEach(j => { if(s[j.n]) { s[j.n].r += j.r; s[j.n].j += 1; } }));
+        const sorted = Object.entries(s).sort((a,b)=>b[1].r - a[1].r);
+        if(myChart) myChart.destroy();
+        myChart = new Chart(document.getElementById('chartRayas').getContext('2d'), { 
+            type:'bar', data: { labels: sorted.map(x=>x[0]), datasets:[{label:'Rayas', data:sorted.map(x=>x[1].r), backgroundColor:'#0a84ff'}] } 
+        });
+        document.getElementById('stats-summary').innerHTML = sorted.map(x => `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333"><b>${x[0]}</b> <span>${x[1].r}R en ${x[1].j} rondas</span></div>`).join('');
+    }
+
+    function openEditor(id=null) {
+        editingId = id;
+        const p = id ? players.find(x=>x.id===id) : {name:"", img: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Date.now()}`, email: "", phone: "", bday: ""};
+        document.getElementById('edit-name').value = p.name;
+        document.getElementById('edit-email').value = p.email || "";
+        document.getElementById('edit-phone').value = p.phone || "";
+        document.getElementById('edit-bday').value = p.bday || "";
+        document.getElementById('edit-img-preview').src = p.img;
+        document.getElementById('btn-delete-player').style.display = id ? 'block' : 'none';
+        document.getElementById('editor-overlay').style.display = 'block';
+    }
+
+    function savePlayer() {
+        const n = document.getElementById('edit-name').value.trim();
+        if(!n) return alert("Nombre requerido");
+        
+        const data = {
+            name: n,
+            email: document.getElementById('edit-email').value,
+            phone: document.getElementById('edit-phone').value,
+            bday: document.getElementById('edit-bday').value,
+            img: document.getElementById('edit-img-preview').src
+        };
+
+        if(editingId) {
+            const idx = players.findIndex(x=>x.id===editingId);
+            players[idx] = { ...players[idx], ...data };
+        } else {
+            players.push({ id: Date.now(), ...data });
+        }
+        closeEditor(); render(); updateOptions();
+    }
+
+    function deletePlayer() { if(confirm("¿Eliminar?")) { players = players.filter(x => x.id !== editingId); closeEditor(); render(); updateOptions(); } }
+    function closeEditor() { document.getElementById('editor-overlay').style.display='none'; }
+    document.getElementById('file-input').onchange = function(e) {
+        const reader = new FileReader();
+        reader.onload = (ev) => document.getElementById('edit-img-preview').src = ev.target.result;
+        reader.readAsDataURL(e.target.files[0]);
+    };
+    function resetData() { if(confirm("¿Borrar todo?")) { db=[]; localStorage.removeItem(K_DB); render(); } }
+
+    createSelectors(); render();
 </script>
 </body>
 </html>
-
