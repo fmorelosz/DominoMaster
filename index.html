@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Domino Master 6.9.2 - Export Pro</title>
+    <title>Domino Master 7.0 - Edición Definitiva</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #000; --card: #1c1c1e; --primary: #0a84ff; --success: #30d158; --danger: #ff453a; --text: #fff; --gray: #8e8e93; --warning: #ff9f0a; }
+        :root { --bg: #000; --card: #1c1c1e; --primary: #0a84ff; --success: #30d158; --danger: #ff453a; --text: #fff; --gray: #8e8e93; --warning: #ff9f0a; --gold: #ffd700; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; font-size: 16px; }
         .container { max-width: 500px; margin: 0 auto; }
@@ -20,38 +20,84 @@
         .txt-neg { color: var(--danger) !important; font-weight: bold; }
         .history-card { background: #262629; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; overflow: hidden; }
         .hist-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #2c2c2e; }
+        .hist-header:hover { background: #3a3a3c; }
         .hist-content { display: none; padding: 10px; background: #1c1c1e; }
         .hist-content.active { display: block; }
         .hist-item { padding: 10px; border-bottom: 1px solid #333; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
-        .player-item { display: flex; align-items: center; gap: 12px; background: #262629; padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #333; width: 100%; }
+        .hist-item:last-child { border-bottom: none; }
+        .hist-game-header { font-size: 11px; color: var(--primary); margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .player-item { display: flex; align-items: center; gap: 12px; background: #262629; padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #333; width: 100%; cursor: pointer; transition: 0.2s; }
+        .player-item:hover { background: #2c2c2e; transform: translateX(5px); }
+        .player-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; }
+        .player-info { flex: 1; }
+        .player-name { font-weight: bold; color: var(--text); font-size: 16px; }
+        .player-email { font-size: 11px; color: var(--gray); margin-top: 2px; }
         .select-wrapper { position: relative; width: 100%; }
         .player-select { padding-left: 45px !important; }
         .select-avatar-preview { position: absolute; left: 10px; top: 50%; transform: translateY(-75%); width: 28px; height: 28px; border-radius: 50%; border: 1px solid #555; object-fit: cover; display: none; pointer-events: none; z-index: 10; }
-        .game-player-imgs { display: flex; justify-content: center; gap: 5px; margin-bottom: 5px; }
-        .game-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #555; object-fit: cover; }
+        .game-player-imgs { display: flex; justify-content: center; gap: 8px; margin-bottom: 5px; position: relative; }
+        .game-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #555; object-fit: cover; position: relative; }
+        .avatar-container { position: relative; display: inline-block; }
+        .star-badge { position: absolute; top: -5px; right: -5px; color: var(--gold); font-size: 18px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); z-index: 10; }
         .score-display { font-size: 3.2rem; font-weight: 900; color: var(--success); margin: 2px 0; }
         .input-score-big { font-size: 32px !important; height: 60px; text-align: center; font-weight: bold; color: var(--primary) !important; border: 2px solid #444 !important; margin-bottom: 5px !important; }
         .btn-add-big { flex: 2; height: 50px; font-size: 24px; background: var(--primary); color: #fff; border-radius: 10px; }
         .btn-empate { flex: 1; height: 50px; font-size: 11px; background: var(--warning); color: #000; margin-left: 5px; border-radius: 10px; font-weight: 900; }
-        .btn-undo { width: 100%; height: 35px; font-size: 12px; background: #444; color: #fff; margin-top: 5px; border-radius: 8px; opacity: 0.8; }
         .points-list { background: #161617; border-radius: 8px; border: 1px solid #333; font-size: 13px; height: 100px; overflow-y: auto; margin-top: 10px; }
-        .points-entry { padding: 4px; border-bottom: 1px solid #222; text-align: center; color: var(--gray); }
+        .points-entry { padding: 8px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .points-entry:hover { background: #2c2c2e; }
+        .points-entry span:first-child { color: var(--gray); }
+        .points-entry span:last-child { color: var(--primary); font-weight: bold; }
+        .delete-point { color: var(--danger); font-size: 16px; margin-left: 10px; }
         #editor-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: none; padding: 20px; overflow-y: auto; }
-        .photo-container { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; cursor: pointer; }
-        #edit-img-preview { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; }
+        .photo-container { position: relative; width: 120px; height: 120px; margin: 0 auto 20px; cursor: pointer; }
+        #edit-img-preview { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; }
         .descanso-badge { background: #3a3a3c; color: #fff; padding: 8px 15px; border-radius: 12px; font-size: 12px; display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; border: 1px solid #444; width: 100%; }
         .rest-player-item { display: flex; align-items: center; gap: 5px; background: #2c2c2e; padding: 4px 8px; border-radius: 8px; }
         .rest-img { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #555; object-fit: cover; }
         .export-section { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #333; }
         .btn-export { background: #3a3a3c; color: #fff; padding: 12px; width: 100%; font-size: 14px; }
         label { display: block; font-size: 11px; color: var(--gray); margin-bottom: 4px; margin-left: 5px; text-transform: uppercase; }
+        #hand-selector-overlay, #next-round-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 900; display: none; padding: 20px; overflow-y: auto; }
+        .team-section { margin-bottom: 20px; background: #2c2c2e; border-radius: 12px; padding: 15px; }
+        .team-title { color: var(--gold); font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+        .team-players { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .player-selector-item { display: flex; flex-direction: column; align-items: center; gap: 8px; background: #262629; padding: 15px; border-radius: 12px; border: 2px solid transparent; cursor: pointer; width: 120px; transition: 0.2s; }
+        .player-selector-item:hover { transform: translateY(-2px); background: #2c2c2e; }
+        .player-selector-item.selected { border-color: var(--gold); background: #2c2c2e; }
+        .player-selector-item img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; }
+        .player-name-small { font-weight: bold; color: var(--text); font-size: 14px; text-align: center; }
+        .hand-indicator { color: var(--gold); font-size: 20px; margin-top: 5px; display: none; }
+        .player-selector-item.selected .hand-indicator { display: block; }
+        .game-info-bar { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px; padding: 8px; background: #2c2c2e; border-radius: 8px; }
+        .game-number { color: var(--gray); font-size: 12px; }
+        .date-group { margin-bottom: 20px; }
+        .date-header { background: #2c2c2e; padding: 12px; border-radius: 12px 12px 0 0; font-weight: bold; border-bottom: 1px solid #444; }
+        .next-round-info { background: #2c2c2e; padding: 20px; border-radius: 16px; margin: 10px 0; text-align: center; border: 2px solid var(--gold); }
+        .next-round-title { color: var(--gold); font-size: 18px; margin-bottom: 20px; }
+        .next-round-pair { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 15px; background: #1c1c1e; border-radius: 12px; }
+        .pair-team { display: flex; gap: 15px; align-items: center; flex: 1; }
+        .pair-team.left { justify-content: flex-start; }
+        .pair-team.right { justify-content: flex-end; }
+        .pair-player { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .pair-player img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; }
+        .pair-player span { font-size: 12px; color: var(--text); }
+        .vs-badge { color: var(--gold); font-weight: bold; font-size: 20px; margin: 0 15px; }
+        .rest-section { background: #1c1c1e; padding: 15px; border-radius: 12px; margin: 15px 0; }
+        .rest-title { color: var(--gray); margin-bottom: 10px; }
+        .rest-players { display: flex; justify-content: center; gap: 20px; }
+        .rank-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid #333; }
+        .rank-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+        .rank-name { flex: 1; color: var(--text); }
+        .rank-rayas { font-weight: bold; }
+        .version-badge { text-align: center; font-size: 10px; color: var(--gray); margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="screen-setup">
-        <h1 style="text-align:center; font-size: 22px;">Domino Master 6.9.2</h1>
+        <h1 style="text-align:center; font-size: 22px;">Domino Master 7.0</h1>
         <div class="card">
             <div class="tabs">
                 <button class="btn-tab active" onclick="showTab('play')">🎮 JUGAR</button>
@@ -72,50 +118,86 @@
                 <button onclick="beginRonda()" style="background:var(--success); color:#fff; width:100%; padding:20px; border-radius:12px; margin-top:20px; font-size:20px">INICIAR PARTIDA</button>
             </div>
 
-            <div id="view-rank" class="tab-content" style="display:none"><table style="width:100%"><tbody id="rank-body"></tbody></table></div>
-            <div id="view-stats" class="tab-content" style="display:none"><div class="card"><canvas id="chartRayas"></canvas></div><div id="stats-summary"></div></div>
-            <div id="view-hist" class="tab-content" style="display:none"><div id="history-list"></div></div>
-            <div id="view-edit" class="tab-content" style="display:none"><div id="player-list"></div><button onclick="openEditor()" style="background:var(--primary); color:#fff; width:100%; padding:15px; border-radius:10px; font-size:16px; margin-top:10px">+ Nuevo Jugador</button></div>
+            <div id="view-rank" class="tab-content" style="display:none">
+                <div id="rank-body"></div>
+            </div>
+            <div id="view-stats" class="tab-content" style="display:none">
+                <div class="card"><canvas id="chartRayas"></canvas></div>
+                <div id="stats-summary"></div>
+            </div>
+            <div id="view-hist" class="tab-content" style="display:none">
+                <div id="history-list"></div>
+            </div>
+            <div id="view-edit" class="tab-content" style="display:none">
+                <div id="player-list"></div>
+                <button onclick="openEditor()" style="background:var(--primary); color:#fff; width:100%; padding:15px; border-radius:10px; font-size:16px; margin-top:10px">+ Nuevo Jugador</button>
+            </div>
             
             <div id="view-sett" class="tab-content" style="display:none">
                 <div class="export-section">
                     <p style="font-size: 12px; color: var(--gray); text-align: center; margin-bottom: 5px;">EXPORTAR DATOS (.CSV)</p>
                     <button class="btn-export" onclick="exportRankingCSV()">📥 Exportar Ranking</button>
                     <button class="btn-export" onclick="exportHistoryCSV()">📥 Exportar Histórico</button>
+                    <button class="btn-export" onclick="exportFullDataCSV()">📥 Exportar Datos Completos</button>
                 </div>
                 <div style="margin-top: 30px;">
                     <button onclick="resetData()" style="width:100%; padding:15px; background:none; color:var(--danger); border:1px solid var(--danger); border-radius:10px;">🗑️ BORRAR TODO</button>
                 </div>
             </div>
         </div>
+        <div class="version-badge">Versión 7.0 Definitiva</div>
     </div>
 
     <div id="screen-game" style="display:none">
         <div class="card" style="padding:10px; text-align: center;">
             <div id="game-header" style="font-size:13px; color:var(--warning); font-weight:bold; margin-bottom:5px;"></div>
+            <div id="game-info-bar" class="game-info-bar">
+                <div id="game-number" class="game-number"></div>
+            </div>
             <div id="descanso-info"></div>
             <div style="display:flex; gap:8px;">
                 <div style="flex:1; background:#262629; padding:10px; border-radius:12px; border:1px solid #444">
                     <div id="game-imgs-a" class="game-player-imgs"></div>
                     <div id="names-a" style="font-size:10px; font-weight:bold; height:25px;"></div>
                     <div class="score-display" id="score-a">0</div>
-                    <input type="number" id="pts-a" class="input-score-big" placeholder="0" inputmode="numeric">
+                    <input type="number" id="pts-a" class="input-score-big" placeholder="0" inputmode="numeric" min="1">
                     <div style="display:flex"><button onclick="sumPts('A')" class="btn-add-big">+</button><button onclick="sumEmpate('A')" class="btn-empate">EMPATE</button></div>
                     <div id="list-a" class="points-list"></div>
-                    <button onclick="undo('A')" class="btn-undo">DESHACER</button>
                 </div>
                 <div style="flex:1; background:#262629; padding:10px; border-radius:12px; border:1px solid #444">
                     <div id="game-imgs-b" class="game-player-imgs"></div>
                     <div id="names-b" style="font-size:10px; font-weight:bold; height:25px;"></div>
                     <div class="score-display" id="score-b">0</div>
-                    <input type="number" id="pts-b" class="input-score-big" placeholder="0" inputmode="numeric">
+                    <input type="number" id="pts-b" class="input-score-big" placeholder="0" inputmode="numeric" min="1">
                     <div style="display:flex"><button onclick="sumPts('B')" class="btn-add-big">+</button><button onclick="sumEmpate('B')" class="btn-empate">EMPATE</button></div>
                     <div id="list-b" class="points-list"></div>
-                    <button onclick="undo('B')" class="btn-undo">DESHACER</button>
                 </div>
             </div>
             <button id="btn-next" onclick="stepForward()" style="width:100%; padding:20px; margin-top:15px; background:var(--success); color:#fff; display:none; border-radius:12px; font-size:18px">REGISTRAR JUEGO</button>
-            <button onclick="abandonarRonda()" style="width:100%; margin-top:15px; color:var(--danger); background:none; font-size:12px">ABANDONAR Y GUARDAR</button>
+            <button onclick="abandonarRonda()" style="width:100%; margin-top:15px; color:var(--danger); background:none; font-size:12px; border:1px solid var(--danger); padding:12px;">ABANDONAR Y GUARDAR</button>
+        </div>
+    </div>
+</div>
+
+<div id="hand-selector-overlay">
+    <div class="container">
+        <div class="card">
+            <h3 style="text-align:center; margin-bottom:20px;">👑 Selecciona el Jugador Mano para este juego</h3>
+            <div id="hand-selector-list"></div>
+            <button onclick="closeHandSelector()" style="width:100%; padding:15px; background:var(--primary); color:#fff; border-radius:10px; margin-top:20px;">Comenzar Juego</button>
+        </div>
+    </div>
+</div>
+
+<div id="next-round-overlay">
+    <div class="container">
+        <div class="card">
+            <h3 style="text-align:center; margin-bottom:20px; color:var(--gold);">🔄 Nueva Ronda</h3>
+            <div id="next-round-info"></div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="cancelNextRound()" style="flex:1; padding:15px; background:#444; color:#fff; border-radius:10px;">Terminar</button>
+                <button onclick="confirmNextRound()" style="flex:2; padding:15px; background:var(--success); color:#fff; border-radius:10px;">Continuar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -125,17 +207,17 @@
         <div class="card" style="margin-top: 20px;">
             <h3 style="text-align:center">Perfil Jugador</h3>
             <div class="photo-container" onclick="document.getElementById('file-input').click()">
-                <img id="edit-img-preview" src="">
-                <div style="position:absolute; bottom:0; right:0; background:var(--primary); padding:5px; border-radius:50%; color:white; font-size:12px">📷</div>
+                <img id="edit-img-preview" src="" alt="Vista previa">
+                <div style="position:absolute; bottom:0; right:0; background:var(--primary); padding:8px; border-radius:50%; color:white; font-size:14px">📷</div>
             </div>
             <input type="file" id="file-input" style="display:none" accept="image/*">
-            <label>Nombre</label><input type="text" id="edit-name">
+            <label>Nombre</label><input type="text" id="edit-name" placeholder="Nombre del jugador">
             <label>Email</label><input type="email" id="edit-email" placeholder="correo@ejemplo.com">
             <label>WhatsApp / Teléfono</label><input type="tel" id="edit-phone" placeholder="+00 000 000 000">
             <label>Fecha de Nacimiento</label><input type="date" id="edit-bday">
             <div style="display:flex; gap:10px; margin-top:15px">
                 <button onclick="closeEditor()" style="flex:1; background:#444; color:#fff; padding:15px">Cancelar</button>
-                <button onclick="savePlayer()" style="flex:2; background:var(--success); color:#fff; padding:15px">Guardar</button>
+                <button onclick="savePlayer()" style="flex:2; background:var(--success); color:#fff; padding:15px">💾 Guardar y Salir</button>
             </div>
             <button id="btn-delete-player" onclick="deletePlayer()" style="background:none; color:var(--danger); border:1px solid var(--danger); padding:12px; margin-top:10px; display:none; width:100%">Eliminar Jugador</button>
         </div>
@@ -143,17 +225,153 @@
 </div>
 
 <script>
-    const K_P = 'dm661_players', K_DB = 'dm661_db';
-    let players = JSON.parse(localStorage.getItem(K_P)) || [];
-    let db = JSON.parse(localStorage.getItem(K_DB)) || [];
-    let active = {}, scoresA = [], scoresB = [], editingId = null, myChart = null;
+    // ============================================
+    // DOMINO MASTER 7.0 - VERSIÓN DEFINITIVA
+    // ============================================
+    // - Base de datos consolidada y persistente
+    // - Sistema de manos por juego
+    // - Historial con imágenes y colores
+    // - Ranking en tiempo real
+    // - Exportación a CSV
+    // - Selector de mano agrupado por parejas
+    // - Editor de jugadores con actualización inmediata
+    // - Botón "Guardar y Salir" con refresh automático
+    // - Corrección del FileReader
+    // - Botón "TERMINAR RONDA" al completar (rondas 4 y 5)
+    // - Vuelve automáticamente a la pantalla principal
+    // - SELECTOR DE MANO: Solo jugadores en juego (excluye descanso)
+    // - ABANDONAR: Guarda y sale a página principal
+    // - CORREGIDO: Botón "REGISTRAR JUEGO" después del juego 1 en ronda 6
+    // ============================================
 
-    if(!players.length) { 
-        for(let i=1; i<=6; i++) players.push({id: i, name: `Jugador ${i}`, img: `https://api.dicebear.com/7.x/avataaars/svg?seed=P${i}`, email: "", phone: "", bday: ""}); 
+    // Constantes del juego
+    const RAYAS_POR_PUNTOS = { 0: 3, 50: 2, 100: 1 };
+    const PUNTOS_VICTORIA = 100;
+    const JUEGOS_POR_TIPO = { 4: 3, 5: 5, 6: 3 };
+    
+    // ============================================
+    // BASES DE DATOS - CLAVES CONSOLIDADAS
+    // ============================================
+    const K_PLAYERS = 'dm700_players';  // Base de datos de jugadores
+    const K_HISTORY = 'dm700_db';       // Base de datos de historial
+    
+    // Variables globales
+    let players = [];
+    let db = [];
+    let active = {};
+    let scoresA = [];
+    let scoresB = [];
+    let editingId = null;
+    let myChart = null;
+    let handPlayerId = null;
+    let pendingNewPairs = null;
+
+    // ============================================
+    // CARGA DE DATOS - PERSISTENCIA GARANTIZADA
+    // ============================================
+    try {
+        const savedPlayers = localStorage.getItem(K_PLAYERS);
+        const savedDB = localStorage.getItem(K_HISTORY);
+        
+        players = savedPlayers ? JSON.parse(savedPlayers) : [];
+        db = savedDB ? JSON.parse(savedDB) : [];
+        
+        console.log('✅ Datos cargados:', { 
+            jugadores: players.length, 
+            partidas: db.length 
+        });
+    } catch (e) {
+        console.error('❌ Error cargando datos:', e);
+        players = [];
+        db = [];
     }
 
+    // Inicializar jugadores por defecto solo si no existen
+    if(!players || players.length === 0) { 
+        for(let i=1; i<=6; i++) players.push({
+            id: i, 
+            name: `Jugador ${i}`, 
+            img: `https://api.dicebear.com/7.x/avataaars/svg?seed=P${i}`, 
+            email: "", 
+            phone: "", 
+            bday: ""
+        }); 
+        localStorage.setItem(K_PLAYERS, JSON.stringify(players));
+        console.log('✅ Jugadores por defecto creados');
+    }
+
+    // ============================================
+    // FUNCIONES DE UTILIDAD PARA IMÁGENES
+    // ============================================
+    function getPlayerImage(playerName, playerId = null) {
+        if (playerId) {
+            const player = players.find(p => p.id === playerId);
+            if (player) return player.img;
+        }
+        const player = players.find(p => p.name === playerName);
+        return player ? player.img : `https://api.dicebear.com/7.x/avataaars/svg?seed=${playerName}`;
+    }
+
+    function updateAllPlayerImages() {
+        if (!db || !players) return;
+        
+        let updated = false;
+        
+        db.forEach(ronda => {
+            if (ronda.jugadores) {
+                ronda.jugadores.forEach(j => {
+                    const player = players.find(p => p.name === j.n);
+                    if (player && j.img !== player.img) {
+                        j.img = player.img;
+                        j.email = player.email;
+                        j.phone = player.phone;
+                        updated = true;
+                    }
+                });
+            }
+            
+            if (ronda.log) {
+                ronda.log.forEach(log => {
+                    if (log.gan) {
+                        log.gan.forEach(g => {
+                            if (typeof g === 'object' && g.nombre) {
+                                const player = players.find(p => p.name === g.nombre);
+                                if (player && g.img !== player.img) {
+                                    g.img = player.img;
+                                    updated = true;
+                                }
+                            }
+                        });
+                    }
+                    if (log.per) {
+                        log.per.forEach(p => {
+                            if (typeof p === 'object' && p.nombre) {
+                                const player = players.find(p2 => p2.name === p.nombre);
+                                if (player && p.img !== player.img) {
+                                    p.img = player.img;
+                                    updated = true;
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        
+        if (updated) {
+            localStorage.setItem(K_HISTORY, JSON.stringify(db));
+            console.log('✅ Imágenes actualizadas en el historial');
+        }
+    }
+
+    // Actualizar imágenes al cargar
+    updateAllPlayerImages();
+
+    // ============================================
+    // FUNCIONES DE EXPORTACIÓN CSV
+    // ============================================
     function downloadCSV(csv, filename) {
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
@@ -167,36 +385,69 @@
     }
 
     function exportRankingCSV() {
-        const s = {}; players.forEach(p => s[p.name] = {r:0});
-        db.forEach(r => r.jugadores.forEach(j => { if(s[j.n]) s[j.n].r += j.r; }));
-        let csv = "Jugador,Rayas Totales\n";
-        Object.keys(s).sort((a,b)=>s[b].r - s[a].r).forEach(n => { csv += `${n},${s[n].r}\n`; });
+        const s = {}; 
+        players.forEach(p => s[p.name] = {r:0, j:0, email: p.email || '', phone: p.phone || ''});
+        db.forEach(r => r.jugadores.forEach(j => { 
+            if(s[j.n]) {
+                s[j.n].r += j.r;
+                s[j.n].j += j.j;
+            }
+        }));
+        
+        let csv = "Jugador,Rayas Totales,Juegos Jugados,Email,Teléfono\n";
+        Object.keys(s).sort((a,b)=>s[b].r - s[a].r).forEach(n => { 
+            csv += `"${n}",${s[n].r},${s[n].j},"${s[n].email}","${s[n].phone}"\n`;
+        });
         downloadCSV(csv, `ranking_domino_${new Date().toLocaleDateString()}.csv`);
     }
 
     function exportHistoryCSV() {
-        // Se agregan las columnas de Rayas a Favor y Rayas en Contra
-        let csv = "Fecha,Tipo Ronda,Juego,Ganadores,Perdedores,Rayas a Favor,Rayas en Contra,Pts Ganador,Pts Perdedor\n";
+        let csv = "Fecha,Tipo Ronda,Ronda,Juego,Ganadores,Perdedores,Rayas a Favor,Rayas en Contra,Pts Ganador,Pts Perdedor,Mano\n";
         db.forEach(r => {
             r.log.forEach(l => {
-                // Rayas a favor (positivas) y en contra (negativas)
-                csv += `"${r.fecha}",Ronda ${r.tipo},${l.j},"${l.gan.join(' & ')}","${l.per.join(' & ')}",${l.r},-${l.r},${l.ptsW},${l.ptsL}\n`;
+                const ganadores = l.gan.map(g => g.nombre || g).join(' & ');
+                const perdedores = l.per.map(p => p.nombre || p).join(' & ');
+                const mano = l.mano ? l.mano : '';
+                csv += `"${r.fecha}",Ronda ${r.tipo},${l.numRonda || 1},${l.j},"${ganadores}","${perdedores}",${l.r},-${l.r},${l.ptsW},${l.ptsL},"${mano}"\n`;
             });
         });
         downloadCSV(csv, `historial_domino_${new Date().toLocaleDateString()}.csv`);
     }
 
+    function exportFullDataCSV() {
+        let csv = "Fecha,Tipo Ronda,Ronda,Juego,Equipo A,Jugador A1,Jugador A2,Equipo B,Jugador B1,Jugador B2,Pts A,Pts B,Ganador,Rayas,Descanso1,Descanso2,Mano\n";
+        db.forEach(r => {
+            r.log.forEach((l, index) => {
+                const match = r.currentMatch || { a: [], b: [], resting: [] };
+                const descanso = l.resting ? l.resting.map(i => r.jugadores[i]?.n || '').join(' & ') : '';
+                const ganadores = l.gan.map(g => g.nombre || g);
+                const eqA = ganadores.includes(r.jugadores[match.a?.[0]]?.n) ? 'A' : 'B';
+                
+                csv += `"${r.fecha}",Ronda ${r.tipo},${l.numRonda || 1},${l.j},"` +
+                    `${eqA}","${match.a?.[0] !== undefined ? r.jugadores[match.a[0]]?.n : ''}","${match.a?.[1] !== undefined ? r.jugadores[match.a[1]]?.n : ''}","` +
+                    `${eqA === 'A' ? 'B' : 'A'}","${match.b?.[0] !== undefined ? r.jugadores[match.b[0]]?.n : ''}","${match.b?.[1] !== undefined ? r.jugadores[match.b[1]]?.n : ''}",` +
+                    `${l.ptsW},${l.ptsL},"${ganadores.join(' & ')}",${l.r},"${descanso}","${l.mano || ''}"\n`;
+            });
+        });
+        downloadCSV(csv, `datos_completos_domino_${new Date().toLocaleDateString()}.csv`);
+    }
+
+    // ============================================
+    // FUNCIONES DE INTERFAZ DE USUARIO
+    // ============================================
     function showTab(t) {
         document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
         document.getElementById('view-' + t).style.display = 'block';
         document.querySelectorAll('.btn-tab').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes(t)));
         if(t === 'stats') renderStats();
+        if(t === 'hist') renderHistory();
         render();
     }
 
     function createSelectors() {
         const n = parseInt(document.getElementById('round-type').value);
-        const area = document.getElementById('selector-grid'); area.innerHTML = '';
+        const area = document.getElementById('selector-grid'); 
+        area.innerHTML = '';
         for(let i=0; i<n; i++) area.innerHTML += `<div class="select-wrapper"><img id="sel-avatar-${i}" class="select-avatar-preview" src=""><select id="sel-${i}" class="player-select" onchange="updateOptions()"></select></div>`;
         updateOptions();
     }
@@ -214,95 +465,321 @@
         }
     }
 
-    // FUNCION PARA GENERAR PAREJAS ALEATORIAS SIN REPETIR
-    function getUniquePairs() {
-        let intentos = 0;
-        while(intentos < 1000) {
-            let p = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
-            let p1 = [p[0], p[1]].sort((a,b)=>a-b);
-            let p2 = [p[2], p[3]].sort((a,b)=>a-b);
-            let p3 = [p[4], p[5]].sort((a,b)=>a-b);
-
-            let c1 = p1.join('-');
-            let c2 = p2.join('-');
-            let c3 = p3.join('-');
-
-            if(!active.usedPairs.includes(c1) && !active.usedPairs.includes(c2) && !active.usedPairs.includes(c3)) {
-                active.usedPairs.push(c1, c2, c3);
-                return { p1, p2, p3 };
-            }
-            intentos++;
+    // ============================================
+    // SELECTOR DE MANO MEJORADO - SOLO JUGADORES EN JUEGO
+    // ============================================
+    function showHandSelector() {
+        const equipoA = [];
+        const equipoB = [];
+        // Ya no incluimos descanso aquí porque no pueden ser mano
+        
+        if (active && active.currentMatch) {
+            // Obtener jugadores del equipo A (solo los que juegan)
+            active.currentMatch.a.forEach(i => {
+                const player = active.jugadores[i];
+                if (player) equipoA.push(player);
+            });
+            
+            // Obtener jugadores del equipo B (solo los que juegan)
+            active.currentMatch.b.forEach(i => {
+                const player = active.jugadores[i];
+                if (player) equipoB.push(player);
+            });
+            
+            // Los jugadores en descanso NO se agregan a la selección
+            // active.currentMatch.resting se ignora completamente
         }
-        return null; // Si se acaban todas las combinaciones posibles
+        
+        const listDiv = document.getElementById('hand-selector-list');
+        listDiv.innerHTML = '';
+        
+        // Si no hay equipos definidos (primer juego), usar los seleccionados
+        if (equipoA.length === 0 && equipoB.length === 0) {
+            const n = parseInt(document.getElementById('round-type').value);
+            const names = Array.from({length:n}, (_,i) => document.getElementById('sel-'+i).value);
+            
+            // Dividir en equipos según el tipo de ronda, excluyendo descanso
+            if (n === 4) {
+                // Para ronda de 4, todos juegan, nadie descansa
+                names.forEach((name, index) => {
+                    const player = players.find(p => p.name === name);
+                    if (player) {
+                        if (index < 2) equipoA.push({ n: player.name, id: player.id, img: player.img });
+                        else equipoB.push({ n: player.name, id: player.id, img: player.img });
+                    }
+                });
+            } else if (n === 5) {
+                // Para ronda de 5, los primeros dos equipo A, siguientes dos equipo B
+                // El último (índice 4) descansa y NO se incluye
+                names.forEach((name, index) => {
+                    if (index < 4) { // Solo los primeros 4 juegan
+                        const player = players.find(p => p.name === name);
+                        if (player) {
+                            if (index < 2) equipoA.push({ n: player.name, id: player.id, img: player.img });
+                            else equipoB.push({ n: player.name, id: player.id, img: player.img });
+                        }
+                    }
+                });
+            } else if (n === 6) {
+                // Para ronda de 6, usar la configuración actual
+                if (active.p1 && active.p2 && active.p3) {
+                    // Solo p1 y p2 juegan, p3 descansa
+                    active.p1.forEach(i => {
+                        const player = active.jugadores[i];
+                        if (player) equipoA.push(player);
+                    });
+                    active.p2.forEach(i => {
+                        const player = active.jugadores[i];
+                        if (player) equipoB.push(player);
+                    });
+                    // p3 (descanso) se ignora completamente
+                }
+            }
+        }
+        
+        // Función para crear un selector de jugador
+        const createPlayerSelector = (player) => {
+            if (!player || !player.n) return '';
+            const p = players.find(p => p.name === player.n) || player;
+            return `
+                <div class="player-selector-item" onclick="selectHandPlayer('${p.id || player.id}')" id="player-${p.id || player.id}">
+                    <img src="${p.img || getPlayerImage(p.n)}" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=${p.id || p.n}'">
+                    <span class="player-name-small">${p.n || p.name}</span>
+                    <div class="hand-indicator">👑</div>
+                </div>
+            `;
+        };
+        
+        // Construir el HTML solo con equipos que juegan
+        let html = '';
+        
+        // Equipo A
+        if (equipoA.length > 0) {
+            html += `
+                <div class="team-section">
+                    <div class="team-title">⚔️ EQUIPO A</div>
+                    <div class="team-players">
+                        ${equipoA.map(player => createPlayerSelector(player)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Equipo B
+        if (equipoB.length > 0) {
+            html += `
+                <div class="team-section">
+                    <div class="team-title">🛡️ EQUIPO B</div>
+                    <div class="team-players">
+                        ${equipoB.map(player => createPlayerSelector(player)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // NOTA: La sección de descanso ha sido eliminada completamente
+        
+        listDiv.innerHTML = html;
+        document.getElementById('hand-selector-overlay').style.display = 'block';
     }
 
+    // Función para seleccionar jugador mano
+    function selectHandPlayer(playerId) {
+        // Remover selección anterior
+        document.querySelectorAll('.player-selector-item').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        // Agregar selección al jugador elegido
+        const selectedEl = document.getElementById(`player-${playerId}`);
+        if (selectedEl) {
+            selectedEl.classList.add('selected');
+            handPlayerId = playerId;
+        }
+    }
+
+    function closeHandSelector() {
+        if(!handPlayerId) {
+            alert('Por favor selecciona el jugador que es la mano para este juego');
+            return;
+        }
+        document.getElementById('hand-selector-overlay').style.display = 'none';
+        
+        active.handPlayerId = handPlayerId;
+        
+        if (!active.jugadores) {
+            console.error('Error: No hay jugadores en la partida activa');
+            return;
+        }
+        
+        prepareStarter();
+        
+        if (document.getElementById('screen-setup').style.display !== 'none') {
+            document.getElementById('screen-setup').style.display = 'none';
+            document.getElementById('screen-game').style.display = 'block';
+        }
+    }
+
+    // ============================================
+    // LÓGICA DE EMPAREJAMIENTO (RONDA DE 6)
+    // ============================================
+    function generateAllPairs() {
+        const allPairs = [];
+        for(let i = 0; i < 5; i++) {
+            for(let j = i+1; j < 6; j++) {
+                allPairs.push([i, j]);
+            }
+        }
+        
+        const validCombinations = [];
+        for(let a = 0; a < allPairs.length; a++) {
+            for(let b = a+1; b < allPairs.length; b++) {
+                for(let c = b+1; c < allPairs.length; c++) {
+                    const used = new Set([...allPairs[a], ...allPairs[b], ...allPairs[c]]);
+                    if(used.size === 6) {
+                        validCombinations.push({
+                            p1: allPairs[a].sort((x,y)=>x-y),
+                            p2: allPairs[b].sort((x,y)=>x-y),
+                            p3: allPairs[c].sort((x,y)=>x-y)
+                        });
+                    }
+                }
+            }
+        }
+        return validCombinations;
+    }
+
+    function getUniquePairs() {
+        if(!active.allPairCombinations) {
+            active.allPairCombinations = generateAllPairs();
+        }
+        
+        const available = active.allPairCombinations.filter(combo => {
+            const key1 = combo.p1.join('-');
+            const key2 = combo.p2.join('-');
+            const key3 = combo.p3.join('-');
+            return !active.usedPairs.includes(key1) && 
+                   !active.usedPairs.includes(key2) && 
+                   !active.usedPairs.includes(key3);
+        });
+        
+        if(available.length === 0) return null;
+        
+        const randomIndex = Math.floor(Math.random() * available.length);
+        return available[randomIndex];
+    }
+
+    // ============================================
+    // INICIO DE RONDA Y JUEGOS
+    // ============================================
     function beginRonda() {
         const n = parseInt(document.getElementById('round-type').value);
         const names = Array.from({length:n}, (_,i) => document.getElementById('sel-'+i).value);
         if(names.includes("")) return alert("Selecciona todos los jugadores");
-        active = { tipo: n, fecha: new Date().toLocaleString(), jugadores: names.map(n => ({n, r:0, j:0})), juegoNum: 1, log: [] };
         
-        // Inicialización estricta para la Ronda de 6
+        handPlayerId = null;
+        
+        active = { 
+            tipo: n, 
+            fecha: new Date().toLocaleString(), 
+            jugadores: names.map(n => {
+                const player = players.find(p => p.name === n);
+                return {
+                    n, 
+                    r:0, 
+                    j:0, 
+                    id: player?.id, 
+                    email: player?.email, 
+                    phone: player?.phone,
+                    img: player?.img || getPlayerImage(n)
+                };
+            }), 
+            juegoNum: 1, 
+            log: [],
+            handPlayerId: null
+        };
+        
         if(n == 6) {
             active.numRonda = 1;
             active.usedPairs = [];
-            // Parejas fijas 1 y 2, 3 y 4, 5 y 6
+            active.allPairCombinations = generateAllPairs();
             active.p1 = [0, 1];
             active.p2 = [2, 3];
             active.p3 = [4, 5];
             active.usedPairs.push("0-1", "2-3", "4-5");
         }
 
-        prepareStarter();
+        prepareStarterForHandSelection();
     }
 
-    function prepareStarter() {
-        let pA, pB, rest = [];
+    function prepareStarterForHandSelection() {
         const n = active.tipo, j = active.juegoNum;
         
         if(n == 4) { 
-            const c = [[0,1,2,3],[0,2,1,3],[0,3,1,2]][j-1]; pA=[c[0],c[1]]; pB=[c[2],c[3]]; 
+            const c = [[0,1,2,3],[0,2,1,3],[0,3,1,2]][j-1]; 
+            active.currentMatch = { a: [c[0],c[1]], b: [c[2],c[3]], resting: [] };
         }
         else if(n == 5) { 
-            const c = [[0,1,2,3,4],[0,2,3,4,1],[0,3,4,1,2],[0,4,1,2,3],[2,4,1,3,0]][j-1]; pA=[c[0],c[1]]; pB=[c[2],c[3]]; rest=[c[4]]; 
+            const c = [[0,1,2,3,4],[0,2,3,4,1],[0,3,4,1,2],[0,4,1,2,3],[2,4,1,3,0]][j-1]; 
+            active.currentMatch = { a: [c[0],c[1]], b: [c[2],c[3]], resting: [c[4]] };
         }
         else { 
-            // LÓGICA DE ENFRENTAMIENTOS RONDA DE 6
             if(j == 1) { 
-                pA = active.p1; pB = active.p2; rest = active.p3; 
+                active.currentMatch = { a: active.p1, b: active.p2, resting: active.p3 };
             }
             else if(j == 2) { 
-                pA = active.lastWinner; pB = active.p3; rest = active.lastLoser; 
+                active.currentMatch = { a: active.lastWinner, b: active.p3, resting: active.lastLoser };
             }
             else { 
-                pA = active.lastLoser; pB = active.p3; rest = active.lastWinner; 
+                active.currentMatch = { a: active.lastLoser, b: active.p3, resting: active.lastWinner };
             } 
         }
         
-        active.currentMatch = { a: pA, b: pB, resting: rest };
+        showHandSelector();
+    }
+
+    function prepareStarter() {
         const dDiv = document.getElementById('descanso-info');
-        if(rest.length > 0) {
+        if(active.currentMatch.resting && active.currentMatch.resting.length > 0) {
             let html = `<div class="descanso-badge"><span>Descansa:</span>`;
-            rest.forEach(i => {
+            active.currentMatch.resting.forEach(i => {
                 const name = active.jugadores[i].n;
                 const p = players.find(x => x.name === name);
-                html += `<div class="rest-player-item"><img src="${p.img}" class="rest-img"> <span>${name}</span></div>`;
+                if(p) {
+                    html += `<div class="rest-player-item"><img src="${p.img}" class="rest-img"> <span>${name}</span></div>`;
+                }
             });
             dDiv.innerHTML = html + `</div>`;
         } else dDiv.innerHTML = "";
         
         loadMatch();
-        document.getElementById('screen-setup').style.display = 'none';
-        document.getElementById('screen-game').style.display = 'block';
+    }
+
+    function getPlayerWithStar(imgSrc, playerId) {
+        const isHand = playerId == active.handPlayerId;
+        return `
+            <div class="avatar-container">
+                <img src="${imgSrc}" class="game-avatar" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=${playerId}'">
+                ${isHand ? '<span class="star-badge">👑</span>' : ''}
+            </div>
+        `;
     }
 
     function loadMatch() {
-        scoresA = []; scoresB = []; recalc('A'); recalc('B');
+        scoresA = []; 
+        scoresB = []; 
+        recalc('A'); 
+        recalc('B');
         document.getElementById('btn-next').style.display = 'none';
+        
+        document.getElementById('game-number').innerText = `Juego ${active.juegoNum}/${active.tipo == 5 ? 5 : 3}`;
+        
         const draw = (inds) => inds.map(i => {
-            const p = players.find(x => x.name === active.jugadores[i].n);
-            return `<img src="${p.img}" class="game-avatar">`;
+            const player = active.jugadores[i];
+            const p = players.find(x => x.name === player.n);
+            return getPlayerWithStar(p?.img || getPlayerImage(player.n), player.id);
         }).join('');
+        
         document.getElementById('game-imgs-a').innerHTML = draw(active.currentMatch.a);
         document.getElementById('game-imgs-b').innerHTML = draw(active.currentMatch.b);
         document.getElementById('names-a').innerText = active.currentMatch.a.map(i=>active.jugadores[i].n).join(" & ");
@@ -315,44 +792,115 @@
         }
     }
 
+    // ============================================
+    // GESTIÓN DE PUNTOS
+    // ============================================
     function sumPts(t) {
         const inp = document.getElementById('pts-'+t.toLowerCase());
-        const v = parseInt(inp.value) || 0;
+        const val = inp.value.trim();
+        if(val === '') return;
+        
+        const v = parseInt(val);
+        if(isNaN(v) || v <= 0) {
+            alert('Por favor ingresa un número válido mayor que cero');
+            return;
+        }
+        
         if(t==='A') scoresA.push(v); else scoresB.push(v);
-        recalc(t); inp.value = "";
+        recalc(t); 
+        inp.value = "";
     }
-    function sumEmpate(t) { if(t==='A') scoresA.push(0); else scoresB.push(0); recalc(t); }
-    function undo(t) { if(t==='A') scoresA.pop(); else scoresB.pop(); recalc(t); }
+
+    function sumEmpate(t) { 
+        if(t==='A') scoresA.push(0); else scoresB.push(0); 
+        recalc(t); 
+    }
+
+    function deletePoint(t, index) {
+        if(t==='A') scoresA.splice(index, 1); else scoresB.splice(index, 1);
+        recalc(t);
+    }
 
     function recalc(t) {
         const list = (t==='A' ? scoresA : scoresB);
         const total = list.reduce((a,b)=>a+b, 0);
         document.getElementById('score-'+t.toLowerCase()).innerText = total;
+        
         let running = 0;
-        document.getElementById('list-'+t.toLowerCase()).innerHTML = list.map(v => {
-            running += v; return `<div class="points-entry">+${v} (${running})</div>`;
+        const listElement = document.getElementById('list-'+t.toLowerCase());
+        listElement.innerHTML = list.map((v, idx) => {
+            running += v;
+            const displayValue = v === 0 ? 'EMPATE' : `+${v}`;
+            return `<div class="points-entry" onclick="deletePoint('${t}', ${idx})">
+                <span>${displayValue}</span>
+                <span>(${running}) <span class="delete-point">✖</span></span>
+            </div>`;
         }).reverse().join('');
+        
         const totalA = scoresA.reduce((a,b)=>a+b,0);
         const totalB = scoresB.reduce((a,b)=>a+b,0);
-        document.getElementById('btn-next').style.display = (totalA >= 100 || totalB >= 100) ? 'block' : 'none';
+        document.getElementById('btn-next').style.display = (totalA >= PUNTOS_VICTORIA || totalB >= PUNTOS_VICTORIA) ? 'block' : 'none';
     }
 
+    // ============================================
+    // AVANZAR AL SIGUIENTE JUEGO - VERSIÓN CORREGIDA
+    // ============================================
     function stepForward() {
         const totalA = scoresA.reduce((a,b)=>a+b,0);
         const totalB = scoresB.reduce((a,b)=>a+b,0);
         const winA = totalA > totalB;
         const ptsW = winA ? totalA : totalB;
         const ptsL = winA ? totalB : totalA;
-        const r = ptsL <= 0 ? 3 : (ptsL < 51 ? 2 : 1);
+        
+        let r;
+        if(ptsL <= 0) r = RAYAS_POR_PUNTOS[0];
+        else if(ptsL < 51) r = RAYAS_POR_PUNTOS[50];
+        else r = RAYAS_POR_PUNTOS[100];
+        
         const wIdx = winA ? active.currentMatch.a : active.currentMatch.b;
         const lIdx = winA ? active.currentMatch.b : active.currentMatch.a;
         
-        wIdx.forEach(i => { active.jugadores[i].r += r; active.jugadores[i].j++; });
-        lIdx.forEach(i => { active.jugadores[i].r -= r; active.jugadores[i].j++; });
+        wIdx.forEach(i => { 
+            active.jugadores[i].r += r; 
+            active.jugadores[i].j++; 
+        });
+        lIdx.forEach(i => { 
+            active.jugadores[i].r -= r; 
+            active.jugadores[i].j++; 
+        });
         
-        active.log.push({ j: active.juegoNum, gan: wIdx.map(i=>active.jugadores[i].n), per: lIdx.map(i=>active.jugadores[i].n), r, ptsW, ptsL, numRonda: active.numRonda });
+        const handPlayer = players.find(p => p.id == active.handPlayerId);
         
-        // Guardar ganador y perdedor del juego 1 para rotar a la Pareja 3
+        active.log.push({ 
+            j: active.juegoNum, 
+            gan: wIdx.map(i => {
+                const player = active.jugadores[i];
+                const p = players.find(p2 => p2.name === player.n);
+                return { 
+                    nombre: player.n, 
+                    pts: ptsW,
+                    img: p?.img || getPlayerImage(player.n),
+                    id: player.id
+                };
+            }), 
+            per: lIdx.map(i => {
+                const player = active.jugadores[i];
+                const p = players.find(p2 => p2.name === player.n);
+                return { 
+                    nombre: player.n, 
+                    pts: ptsL,
+                    img: p?.img || getPlayerImage(player.n),
+                    id: player.id
+                };
+            }), 
+            r, 
+            ptsW, 
+            ptsL, 
+            numRonda: active.numRonda || 1,
+            resting: active.currentMatch.resting || [],
+            mano: handPlayer ? handPlayer.name : ''
+        });
+        
         if(active.juegoNum === 1) {
             active.lastWinner = wIdx;
             active.lastLoser = lIdx;
@@ -360,94 +908,388 @@
 
         active.juegoNum++;
         
-        let limitJuegos = (active.tipo == 5 ? 5 : 3);
+        let limitJuegos = JUEGOS_POR_TIPO[active.tipo];
+        console.log('Juego actual:', active.juegoNum, 'Límite:', limitJuegos);
 
         if(active.juegoNum <= limitJuegos) {
-            prepareStarter();
+            // Aún quedan juegos en esta ronda
+            prepareStarterForHandSelection();
+            // El botón debe decir "REGISTRAR JUEGO" para el siguiente juego
+            document.getElementById('btn-next').innerText = 'REGISTRAR JUEGO';
         } else {
-            // Al terminar el triangular
+            // Ronda completada - el botón debe decir "TERMINAR RONDA"
+            document.getElementById('btn-next').innerText = 'TERMINAR RONDA';
+            
             if(active.tipo == 6) {
-                if(confirm("¿Desea continuar con otra ronda cambiando de parejas aleatoriamente sin repetir?")) {
-                    let nuevas = getUniquePairs();
-                    if(nuevas) {
-                        active.p1 = nuevas.p1;
-                        active.p2 = nuevas.p2;
-                        active.p3 = nuevas.p3;
-                        active.numRonda++;
-                        active.juegoNum = 1;
-                        prepareStarter();
-                    } else {
-                        alert("Se han jugado todas las combinaciones de parejas posibles. Fin de la partida.");
-                        finishRonda(true);
-                    }
+                // Para ronda de 6, preguntar si quieren continuar con nueva ronda
+                let nuevas = getUniquePairs();
+                if(nuevas) {
+                    // Mostrar información de las nuevas parejas
+                    showNextRoundInfo(nuevas);
                 } else {
-                    finishRonda(true);
+                    alert("Se han jugado todas las combinaciones de parejas posibles. Fin de la partida.");
+                    finishRondaAndGoToMain(true);
                 }
             } else {
-                finishRonda(true);
+                // Para rondas de 4 o 5, guardar y salir automáticamente
+                // Pequeño delay para asegurar que el DOM se actualice
+                setTimeout(() => {
+                    finishRondaAndGoToMain(true);
+                }, 100);
             }
         }
     }
 
-    function abandonarRonda() {
-        if(confirm("¿Seguro que deseas abandonar la partida? Se guardarán los juegos que ya hayas completado en el historial.")) {
-            // Solo guarda si se jugó al menos un partido en esta sesión
-            finishRonda(active.log && active.log.length > 0);
+    // ============================================
+    // FINALIZAR RONDA Y VOLVER A PANTALLA PRINCIPAL
+    // ============================================
+    function finishRondaAndGoToMain(save) {
+        if(save) {
+            active.fechaFin = new Date().toLocaleString();
+            db.push(active);
+            localStorage.setItem(K_HISTORY, JSON.stringify(db));
+            console.log('✅ Partida guardada en el historial');
+        }
+        
+        // Cerrar la pantalla de juego
+        document.getElementById('screen-game').style.display = 'none';
+        // Mostrar la pantalla de configuración
+        document.getElementById('screen-setup').style.display = 'block';
+        
+        // Asegurarse de que estamos en la pestaña de JUGAR
+        showTab('play');
+        
+        // Actualizar todas las vistas
+        render();
+        if(document.getElementById('view-hist').style.display !== 'none') {
+            renderHistory();
+        }
+        
+        // Mostrar mensaje de confirmación
+        setTimeout(() => {
+            alert('✅ Ronda completada y guardada correctamente');
+        }, 100);
+    }
+
+    // ============================================
+    // NUEVA RONDA (PARA TRIANGULAR) - ACTUALIZADO
+    // ============================================
+    function showNextRoundInfo(nuevas) {
+        pendingNewPairs = nuevas;
+        
+        const infoDiv = document.getElementById('next-round-info');
+        
+        const getPlayerInfo = (index) => {
+            const player = active.jugadores[index];
+            const p = players.find(p => p.name === player.n);
+            return {
+                name: player.n,
+                img: p?.img || getPlayerImage(player.n)
+            };
+        };
+        
+        const p1a = getPlayerInfo(nuevas.p1[0]);
+        const p1b = getPlayerInfo(nuevas.p1[1]);
+        const p2a = getPlayerInfo(nuevas.p2[0]);
+        const p2b = getPlayerInfo(nuevas.p2[1]);
+        const rest1 = getPlayerInfo(nuevas.p3[0]);
+        const rest2 = getPlayerInfo(nuevas.p3[1]);
+        
+        infoDiv.innerHTML = `
+            <div class="next-round-info">
+                <div class="next-round-title">🎲 Próximos Enfrentamientos</div>
+                
+                <div class="next-round-pair">
+                    <div class="pair-team left">
+                        <div class="pair-player">
+                            <img src="${p1a.img}">
+                            <span>${p1a.name}</span>
+                        </div>
+                        <div class="pair-player">
+                            <img src="${p1b.img}">
+                            <span>${p1b.name}</span>
+                        </div>
+                    </div>
+                    <div class="vs-badge">VS</div>
+                    <div class="pair-team right">
+                        <div class="pair-player">
+                            <img src="${p2a.img}">
+                            <span>${p2a.name}</span>
+                        </div>
+                        <div class="pair-player">
+                            <img src="${p2b.img}">
+                            <span>${p2b.name}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="rest-section">
+                    <div class="rest-title">⏳ Descansan</div>
+                    <div class="rest-players">
+                        <div class="rest-player-item">
+                            <img src="${rest1.img}" class="rest-img">
+                            <span>${rest1.name}</span>
+                        </div>
+                        <div class="rest-player-item">
+                            <img src="${rest2.img}" class="rest-img">
+                            <span>${rest2.name}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('next-round-overlay').style.display = 'block';
+    }
+
+    function cancelNextRound() {
+        document.getElementById('next-round-overlay').style.display = 'none';
+        pendingNewPairs = null;
+        finishRondaAndGoToMain(true);
+    }
+
+    function confirmNextRound() {
+        document.getElementById('next-round-overlay').style.display = 'none';
+        
+        if (pendingNewPairs) {
+            active.p1 = pendingNewPairs.p1;
+            active.p2 = pendingNewPairs.p2;
+            active.p3 = pendingNewPairs.p3;
+            active.usedPairs.push(pendingNewPairs.p1.join('-'), pendingNewPairs.p2.join('-'), pendingNewPairs.p3.join('-'));
+            active.numRonda++;
+            active.juegoNum = 1;
+            active.lastWinner = null;
+            active.lastLoser = null;
+            handPlayerId = null;
+            
+            prepareStarterForHandSelection();
         }
     }
 
-    function finishRonda(save) {
-        if(save) db.push(active);
-        document.getElementById('screen-game').style.display = 'none';
-        document.getElementById('screen-setup').style.display = 'block';
-        render();
+    // ============================================
+    // ABANDONAR Y GUARDAR - VERSIÓN CORREGIDA
+    // ============================================
+    function abandonarRonda() {
+        if(confirm("¿Guardar el progreso y salir?")) {
+            if(active.log && active.log.length > 0) {
+                finishRondaAndGoToMain(true);
+            } else {
+                if(confirm("No hay juegos completados. ¿Salir sin guardar?")) {
+                    // Cerrar la pantalla de juego y volver a la pantalla principal
+                    document.getElementById('screen-game').style.display = 'none';
+                    document.getElementById('screen-setup').style.display = 'block';
+                    // Asegurarse de estar en la pestaña de JUGAR
+                    showTab('play');
+                }
+            }
+        }
     }
 
-    function render() {
-        localStorage.setItem(K_P, JSON.stringify(players));
-        localStorage.setItem(K_DB, JSON.stringify(db));
-        const s = {}; players.forEach(p => s[p.name] = {r:0, img:p.img});
-        db.forEach(r => r.jugadores.forEach(j => { if(s[j.n]) s[j.n].r += j.r; }));
+    // ============================================
+    // RENDERIZADO DE HISTORIAL
+    // ============================================
+    function renderHistory() {
+        if (!db || db.length === 0) {
+            document.getElementById('history-list').innerHTML = '<div style="text-align:center; color:var(--gray); padding:20px;">No hay partidas registradas</div>';
+            return;
+        }
+
+        const groupedByDate = {};
+        db.slice().reverse().forEach(r => {
+            const date = r.fecha.split(',')[0];
+            if (!groupedByDate[date]) {
+                groupedByDate[date] = [];
+            }
+            groupedByDate[date].push(r);
+        });
+
+        let historyHtml = '';
         
-        document.getElementById('rank-body').innerHTML = Object.keys(s).sort((a,b)=>s[b].r - s[a].r).map(n => 
-            `<tr style="border-bottom:1px solid #333"><td style="padding:10px"><img src="${s[n].img}" style="width:35px;height:35px;border-radius:50%"></td><td>${n}</td><td style="text-align:right" class="${s[n].r>=0?'txt-pos':'txt-neg'}">${s[n].r}R</td></tr>`
-        ).join('');
-        
-        document.getElementById('history-list').innerHTML = db.slice().reverse().map(r => `
-            <div class="history-card">
-                <div class="hist-header" onclick="this.nextElementSibling.classList.toggle('active')">
-                    <span><b>Ronda ${r.tipo}</b> <small>${r.fecha}</small></span><span>▼</span>
-                </div>
-                <div class="hist-content">
-                    ${r.log.map(l => `
-                        <div class="hist-item">
-                            ${l.numRonda ? `<div style="font-size:11px; color:var(--primary); margin-bottom:2px">Ronda ${l.numRonda} - Juego ${l.j}</div>` : ''}
-                            <div style="display:flex; justify-content:space-between"><span><b>G:</b> ${l.gan.join(" & ")}</span><span class="txt-pos">+${l.r}R (${l.ptsW})</span></div>
-                            <div style="display:flex; justify-content:space-between"><span style="color:var(--gray)"><b>P:</b> ${l.per.join(" & ")}</span><span class="txt-neg">-${l.r}R (${l.ptsL})</span></div>
-                        </div>`).join('')}
-                </div>
-            </div>`).join('');
+        Object.keys(groupedByDate).sort((a,b) => new Date(b) - new Date(a)).forEach(date => {
+            historyHtml += `<div class="date-group">`;
+            historyHtml += `<div class="date-header">📅 ${date}</div>`;
             
-        document.getElementById('player-list').innerHTML = players.map(p => `
-            <div class="player-item" onclick="openEditor(${p.id})">
-                <img src="${p.img}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"><b>${p.name}</b>
-            </div>`).join('');
+            groupedByDate[date].forEach(r => {
+                historyHtml += `
+                    <div class="history-card">
+                        <div class="hist-header" onclick="this.nextElementSibling.classList.toggle('active')">
+                            <span>
+                                <b>Ronda ${r.tipo}</b> 
+                                <small style="color:var(--gray)">${r.fecha}</small>
+                            </span>
+                            <span>▼</span>
+                        </div>
+                        <div class="hist-content">
+                            ${r.log.map(l => {
+                                return `
+                                <div class="hist-item">
+                                    <div class="hist-game-header">
+                                        <span>🎲 Juego ${l.j}</span>
+                                        ${l.mano ? `<span style="color:var(--gold);">👑 ${l.mano}</span>` : ''}
+                                    </div>
+                                    
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                                        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+                                            ${l.gan.map(g => `
+                                                <div style="display:flex; align-items:center; gap:3px; background:#2c2c2e; padding:2px 8px; border-radius:15px;">
+                                                    <img src="${g.img || getPlayerImage(g.nombre || g)}" style="width:18px; height:18px; border-radius:50%;">
+                                                    <span style="color:var(--text); font-weight:bold; font-size:11px;">${g.nombre || g}</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                        <span class="txt-pos" style="font-size:16px;">+${l.r}R</span>
+                                    </div>
+                                    
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+                                            ${l.per.map(p => `
+                                                <div style="display:flex; align-items:center; gap:3px; background:#2c2c2e; padding:2px 8px; border-radius:15px;">
+                                                    <img src="${p.img || getPlayerImage(p.nombre || p)}" style="width:18px; height:18px; border-radius:50%;">
+                                                    <span style="color:var(--text); font-weight:bold; font-size:11px;">${p.nombre || p}</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                        <span class="txt-neg" style="font-size:16px;">-${l.r}R</span>
+                                    </div>
+                                    
+                                    <div style="display:flex; justify-content:space-between; margin-top:5px; font-size:11px; color:var(--gray);">
+                                        <span>🏆 ${l.ptsW} pts</span>
+                                        <span>🎯 ${l.ptsL} pts</span>
+                                    </div>
+                                    
+                                    ${l.resting && l.resting.length ? `
+                                        <div style="margin-top:5px; font-size:10px; color:var(--gray); background:#2c2c2e; padding:4px; border-radius:8px;">
+                                            ⏳ Descanso: ${l.resting.map(i => {
+                                                const player = r.jugadores[i];
+                                                return player ? player.n : '';
+                                            }).join(' & ')}
+                                        </div>
+                                    ` : ''}
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>`;
+            });
+            
+            historyHtml += `</div>`;
+        });
+        
+        document.getElementById('history-list').innerHTML = historyHtml;
+    }
+
+    // ============================================
+    // RENDERIZADO PRINCIPAL
+    // ============================================
+    function render() {
+        updateAllPlayerImages();
+        
+        const stats = {}; 
+        players.forEach(p => {
+            stats[p.name] = {
+                r: 0, 
+                img: p.img, 
+                id: p.id,
+                email: p.email
+            };
+        });
+        
+        db.forEach(r => r.jugadores.forEach(j => { 
+            if(stats[j.n]) {
+                stats[j.n].r += j.r;
+            }
+        }));
+        
+        document.getElementById('rank-body').innerHTML = Object.keys(stats).sort((a,b)=>stats[b].r - stats[a].r).map(n => {
+            const player = stats[n];
+            return `
+                <div class="rank-row">
+                    <img src="${player.img}" class="rank-avatar" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=${n}'">
+                    <span class="rank-name">${n}</span>
+                    <span class="rank-rayas ${player.r>=0?'txt-pos':'txt-neg'}">${player.r}R</span>
+                </div>
+            `;
+        }).join('');
+        
+        // Renderizar lista de jugadores usando la función dedicada
+        renderPlayerList();
+    }
+
+    // Función específica para renderizar la lista de jugadores
+    function renderPlayerList() {
+        const playerList = document.getElementById('player-list');
+        if (playerList) {
+            playerList.innerHTML = players.map(p => `
+                <div class="player-item" onclick="openEditor(${p.id})">
+                    <img src="${p.img}" class="player-avatar" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=${p.id}'">
+                    <div class="player-info">
+                        <div class="player-name">${p.name}</div>
+                        ${p.email ? `<div class="player-email">${p.email}</div>` : ''}
+                    </div>
+                </div>`).join('');
+        }
     }
 
     function renderStats() {
-        const s = {}; players.forEach(p => s[p.name] = {r:0, j:0});
-        db.forEach(r => r.jugadores.forEach(j => { if(s[j.n]) { s[j.n].r += j.r; s[j.n].j += 1; } }));
+        const s = {}; 
+        players.forEach(p => s[p.name] = {r:0, j:0, email: p.email, phone: p.phone, img: p.img});
+        db.forEach(r => r.jugadores.forEach(j => { 
+            if(s[j.n]) { 
+                s[j.n].r += j.r; 
+                s[j.n].j += 1; 
+            } 
+        }));
+        
         const sorted = Object.entries(s).sort((a,b)=>b[1].r - a[1].r);
+        
+        const backgroundColors = sorted.map(x => x[1].r >= 0 ? '#30d158' : '#ff453a');
+        
         if(myChart) myChart.destroy();
         myChart = new Chart(document.getElementById('chartRayas').getContext('2d'), { 
-            type:'bar', data: { labels: sorted.map(x=>x[0]), datasets:[{label:'Rayas', data:sorted.map(x=>x[1].r), backgroundColor:'#0a84ff'}] } 
+            type:'bar', 
+            data: { 
+                labels: sorted.map(x=>x[0]), 
+                datasets:[{
+                    label:'Rayas', 
+                    data:sorted.map(x=>x[1].r), 
+                    backgroundColor: backgroundColors
+                }] 
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
         });
-        document.getElementById('stats-summary').innerHTML = sorted.map(x => `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333"><b>${x[0]}</b> <span>${x[1].r}R en ${x[1].j} rondas</span></div>`).join('');
+        
+        document.getElementById('stats-summary').innerHTML = sorted.map(x => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #333">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="${x[1].img}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                    <div>
+                        <b style="color:var(--text)">${x[0]}</b>
+                        ${x[1].email ? `<div style="font-size:9px; color:var(--gray)">${x[1].email}</div>` : ''}
+                    </div>
+                </div>
+                <span class="${x[1].r >= 0 ? 'txt-pos' : 'txt-neg'}">${x[1].r}R</span>
+            </div>`).join('');
     }
 
+    // ============================================
+    // EDITOR DE JUGADORES - VERSIÓN MEJORADA
+    // ============================================
     function openEditor(id=null) {
         editingId = id;
-        const p = id ? players.find(x=>x.id===id) : {name:"", img: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Date.now()}`, email: "", phone: "", bday: ""};
+        const p = id ? players.find(x=>x.id === id) : {
+            name: "", 
+            img: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Date.now()}`, 
+            email: "", 
+            phone: "", 
+            bday: ""
+        };
         document.getElementById('edit-name').value = p.name;
         document.getElementById('edit-email').value = p.email || "";
         document.getElementById('edit-phone').value = p.phone || "";
@@ -459,7 +1301,10 @@
 
     function savePlayer() {
         const n = document.getElementById('edit-name').value.trim();
-        if(!n) return alert("Nombre requerido");
+        if(!n) {
+            alert("Nombre requerido");
+            return;
+        }
         
         const data = {
             name: n,
@@ -470,24 +1315,105 @@
         };
 
         if(editingId) {
-            const idx = players.findIndex(x=>x.id===editingId);
+            const idx = players.findIndex(x=>x.id === editingId);
             players[idx] = { ...players[idx], ...data };
         } else {
             players.push({ id: Date.now(), ...data });
         }
-        closeEditor(); render(); updateOptions();
+        
+        // Guardar en localStorage
+        localStorage.setItem(K_PLAYERS, JSON.stringify(players));
+        
+        // Actualizar imágenes en el historial
+        updateAllPlayerImages();
+        
+        // Cerrar el editor
+        closeEditor();
+        
+        // Pequeño delay para asegurar que el DOM se actualice
+        setTimeout(() => {
+            // Refrescar todas las vistas
+            render();                    // Actualiza ranking
+            updateOptions();             // Actualiza los selectores de jugadores
+            
+            if(document.getElementById('view-stats').style.display !== 'none') {
+                renderStats();           // Actualiza estadísticas si está visible
+            }
+            if(document.getElementById('view-hist').style.display !== 'none') {
+                renderHistory();         // Actualiza historial si está visible
+            }
+            
+            // Refrescar todas las imágenes que puedan haber cambiado
+            const allImages = document.querySelectorAll('img');
+            allImages.forEach(img => {
+                const currentSrc = img.src;
+                // Forzar recarga de imagen si es de un jugador
+                if (currentSrc && currentSrc.startsWith('data:')) {
+                    // Las imágenes data: no necesitan recarga
+                } else if (currentSrc && !currentSrc.includes('dicebear')) {
+                    img.src = currentSrc.split('?')[0] + '?t=' + Date.now();
+                }
+            });
+        }, 100);
+        
+        console.log('✅ Jugador guardado y listas actualizadas');
     }
 
-    function deletePlayer() { if(confirm("¿Eliminar?")) { players = players.filter(x => x.id !== editingId); closeEditor(); render(); updateOptions(); } }
-    function closeEditor() { document.getElementById('editor-overlay').style.display='none'; }
+    function deletePlayer() { 
+        if(confirm("¿Eliminar?")) { 
+            players = players.filter(x => x.id !== editingId); 
+            localStorage.setItem(K_PLAYERS, JSON.stringify(players));
+            closeEditor(); 
+            render(); 
+            updateOptions();
+            if(document.getElementById('view-hist').style.display !== 'none') {
+                renderHistory();
+            }
+        } 
+    }
+    
+    function closeEditor() { 
+        document.getElementById('editor-overlay').style.display='none'; 
+        // Asegurar que la lista de jugadores esté actualizada al cerrar
+        renderPlayerList();
+    }
+    
+    // Manejador del input file - VERSIÓN CORREGIDA
     document.getElementById('file-input').onchange = function(e) {
-        const reader = new FileReader();
-        reader.onload = (ev) => document.getElementById('edit-img-preview').src = ev.target.result;
-        reader.readAsDataURL(e.target.files[0]);
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                // Actualizar la imagen de previsualización
+                document.getElementById('edit-img-preview').src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
     };
-    function resetData() { if(confirm("¿Borrar todo?")) { db=[]; localStorage.removeItem(K_DB); render(); } }
+    
+    function resetData() { 
+        if(confirm("¿Borrar TODO el historial? Los jugadores se mantendrán.")) { 
+            db = []; 
+            localStorage.removeItem(K_HISTORY); 
+            render(); 
+            if(document.getElementById('view-hist').style.display !== 'none') {
+                renderHistory();
+            }
+            console.log('✅ Historial borrado');
+        } 
+    }
 
-    createSelectors(); render();
+    // ============================================
+    // INICIALIZACIÓN
+    // ============================================
+    createSelectors(); 
+    render();
+    
+    console.log('🚀 Domino Master 7.0 Definitiva iniciado correctamente');
+    console.log('✅ Selector de mano: solo jugadores en juego');
+    console.log('✅ Ronda 4 y 5: botón TERMINAR RONDA al final');
+    console.log('✅ Abandonar: guarda y sale a pantalla principal');
+    console.log('✅ CORREGIDO: Botón REGISTRAR JUEGO después del juego 1 en ronda 6');
 </script>
 </body>
 </html>
